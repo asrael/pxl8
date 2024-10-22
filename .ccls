@@ -1,0 +1,4 @@
+clang
+%c -std=c99
+%h --include=src/ffi.h
+-Iext/SDL3/include

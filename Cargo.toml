@@ -1,0 +1,33 @@
+[package]
+name = "pxl8"
+version = "0.1.0"
+edition = "2021"
+authors = ["asrael"]
+license = "zlib"
+
+[dependencies]
+libc = "0.2"
+
+[build-dependencies]
+bindgen = { version = "0.70", optional = true }
+
+[features]
+default = []
+gen-ffi = ["bindgen"]
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.dev]
+opt-level = 1
+panic = "abort"
+
+[profile.release]
+codegen-units = 1
+lto = true
+panic = "abort"
+strip = "debuginfo"
+
+[profile.wasm-release]
+inherits = "release"
+opt-level = "s"
