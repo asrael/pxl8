@@ -1,4 +1,5 @@
-#![feature(core_intrinsics)]
+#![allow(internal_features)]
+#![feature(lang_items)]
 #![no_std]
 
 extern crate alloc;
@@ -6,14 +7,14 @@ extern crate alloc;
 pub mod ffi;
 
 use ffi::{
-    SDL_AppResult, SDL_CreateWindow, SDL_Event, SDL_EventType, SDL_LogError,
-    SDL_LogInfo, SDL_Window, SDL_free, SDL_malloc, SDL_WINDOW_RESIZABLE,
+    SDL_AppResult, SDL_CreateWindow, SDL_Event, SDL_EventType,
+    SDL_Window, SDL_free, SDL_malloc, SDL_WINDOW_RESIZABLE,
+    SDL_EnterAppMainCallbacks,
 };
 
 use alloc::alloc::{GlobalAlloc, Layout};
 use alloc::ffi::CString;
 use core::ffi::{c_char, c_int, c_void};
-use core::intrinsics;
 use core::panic::PanicInfo;
 use core::ptr::{self, NonNull};
 
@@ -25,7 +26,7 @@ unsafe impl GlobalAlloc for SDLAlloc {
         SDL_malloc(layout.size()) as *mut u8
     }
 
-    unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
+    unsafe fn dealloc(&self, ptr: *mut u8, _layout: Layout) {
         SDL_free(ptr as *mut c_void);
     }
 }
@@ -39,8 +40,8 @@ pub struct Context {
 }
 
 #[inline]
-pub unsafe extern "C" fn init(
-    appstate: *mut *mut c_void,
+unsafe extern "C" fn init(
+    _appstate: *mut *mut c_void,
     _argc: c_int,
     _argv: *mut *mut c_char,
 ) -> SDL_AppResult {
@@ -60,12 +61,12 @@ pub unsafe extern "C" fn init(
 }
 
 #[inline]
-pub unsafe extern "C" fn update(_appstate: *mut c_void) -> SDL_AppResult {
+unsafe extern "C" fn update(_appstate: *mut c_void) -> SDL_AppResult {
     SDL_AppResult::SDL_APP_CONTINUE
 }
 
 #[inline]
-pub unsafe extern "C" fn event(
+unsafe extern "C" fn event(
     _app_state: *mut c_void,
     event: *mut SDL_Event,
 ) -> SDL_AppResult {
@@ -78,7 +79,7 @@ pub unsafe extern "C" fn event(
 }
 
 #[inline]
-pub unsafe extern "C" fn quit(_appstate: *mut c_void, result: SDL_AppResult) {}
+unsafe extern "C" fn quit(_appstate: *mut c_void, _result: SDL_AppResult) {}
 
 impl core::convert::From<u32> for SDL_EventType {
     fn from(value: u32) -> Self {
@@ -86,7 +87,23 @@ impl core::convert::From<u32> for SDL_EventType {
     }
 }
 
+pub fn run(argc: c_int, argv: *mut *mut c_char) {
+    unsafe {
+        SDL_EnterAppMainCallbacks(
+            argc,
+            argv as *mut *mut c_char,
+            Some(init),
+            Some(update),
+            Some(event),
+            Some(quit),
+        );
+    }
+}
+
+#[lang = "eh_personality"]
+extern "C" fn eh_personality() {}
+
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
-    intrinsics::abort()
+    loop {}
 }

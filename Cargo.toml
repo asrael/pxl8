@@ -2,7 +2,7 @@
 name = "pxl8"
 version = "0.1.0"
 edition = "2021"
-authors = ["asrael"]
+authors = ["asrael <asrael@pxl8.org>"]
 license = "zlib"
 
 [dependencies]

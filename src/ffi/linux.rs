@@ -7744,18 +7744,18 @@ impl ::core::fmt::Debug for SDL_GamepadBinding {
     }
 }
 extern "C" {
-    #[doc = " Add support for gamepads that SDL is unaware of or change the binding of an\n existing gamepad.\n\n The mapping string has the format \"GUID,name,mapping\", where GUID is the\n string value from SDL_GUIDToString(), name is the human readable string for\n the device and mappings are gamepad mappings to joystick ones. Under\n Windows there is a reserved GUID of \"xinput\" that covers all XInput\n devices. The mapping format for joystick is:\n\n - `bX`: a joystick button, index X\n - `hX.Y`: hat X with value Y\n - `aX`: axis X of the joystick\n\n Buttons can be used as a gamepad axes and vice versa.\n\n This string shows an example of a valid mapping for a gamepad:\n\n ```c\n \"341a3608000000000000504944564944,Afterglow PS3 Controller,a:b1,b:b2,y:b3,x:b0,start:b9,guide:b12,back:b8,dpup:h0.1,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,leftshoulder:b4,rightshoulder:b5,leftstick:b10,rightstick:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,lefttrigger:b6,righttrigger:b7\"\n ```\n\n \\param mapping the mapping string.\n \\returns 1 if a new mapping is added, 0 if an existing mapping is updated,\n          -1 on failure; call SDL_GetError() for more information.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_GetGamepadMapping\n \\sa SDL_GetGamepadMappingForGUID"]
+    #[doc = " Add support for gamepads that SDL is unaware of or change the binding of an\n existing gamepad.\n\n The mapping string has the format \"GUID,name,mapping\", where GUID is the\n string value from SDL_GUIDToString(), name is the human readable string for\n the device and mappings are gamepad mappings to joystick ones. Under\n Windows there is a reserved GUID of \"xinput\" that covers all XInput\n devices. The mapping format for joystick is:\n\n - `bX`: a joystick button, index X\n - `hX.Y`: hat X with value Y\n - `aX`: axis X of the joystick\n\n Buttons can be used as a gamepad axes and vice versa.\n\n If a device with this GUID is already plugged in, SDL will generate an\n SDL_EVENT_GAMEPAD_ADDED event.\n\n This string shows an example of a valid mapping for a gamepad:\n\n ```c\n \"341a3608000000000000504944564944,Afterglow PS3 Controller,a:b1,b:b2,y:b3,x:b0,start:b9,guide:b12,back:b8,dpup:h0.1,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,leftshoulder:b4,rightshoulder:b5,leftstick:b10,rightstick:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,lefttrigger:b6,righttrigger:b7\"\n ```\n\n \\param mapping the mapping string.\n \\returns 1 if a new mapping is added, 0 if an existing mapping is updated,\n          -1 on failure; call SDL_GetError() for more information.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_AddGamepadMappingsFromFile\n \\sa SDL_AddGamepadMappingsFromIO\n \\sa SDL_GetGamepadMapping\n \\sa SDL_GetGamepadMappingForGUID\n \\sa SDL_HINT_GAMECONTROLLERCONFIG\n \\sa SDL_HINT_GAMECONTROLLERCONFIG_FILE\n \\sa SDL_EVENT_GAMEPAD_ADDED"]
     pub fn SDL_AddGamepadMapping(mapping: *const libc::c_char) -> libc::c_int;
 }
 extern "C" {
-    #[doc = " Load a set of gamepad mappings from an SDL_IOStream.\n\n You can call this function several times, if needed, to load different\n database files.\n\n If a new mapping is loaded for an already known gamepad GUID, the later\n version will overwrite the one currently loaded.\n\n Mappings not belonging to the current platform or with no platform field\n specified will be ignored (i.e. mappings for Linux will be ignored in\n Windows, etc).\n\n This function will load the text database entirely in memory before\n processing it, so take this into consideration if you are in a memory\n constrained environment.\n\n \\param src the data stream for the mappings to be added.\n \\param closeio if true, calls SDL_CloseIO() on `src` before returning, even\n                in the case of an error.\n \\returns the number of mappings added or -1 on failure; call SDL_GetError()\n          for more information.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_AddGamepadMapping\n \\sa SDL_AddGamepadMappingsFromFile\n \\sa SDL_GetGamepadMapping\n \\sa SDL_GetGamepadMappingForGUID"]
+    #[doc = " Load a set of gamepad mappings from an SDL_IOStream.\n\n You can call this function several times, if needed, to load different\n database files.\n\n If a new mapping is loaded for an already known gamepad GUID, the later\n version will overwrite the one currently loaded.\n\n Any new mappings for already plugged in controllers will generate\n SDL_EVENT_GAMEPAD_ADDED events.\n\n Mappings not belonging to the current platform or with no platform field\n specified will be ignored (i.e. mappings for Linux will be ignored in\n Windows, etc).\n\n This function will load the text database entirely in memory before\n processing it, so take this into consideration if you are in a memory\n constrained environment.\n\n \\param src the data stream for the mappings to be added.\n \\param closeio if true, calls SDL_CloseIO() on `src` before returning, even\n                in the case of an error.\n \\returns the number of mappings added or -1 on failure; call SDL_GetError()\n          for more information.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_AddGamepadMapping\n \\sa SDL_AddGamepadMappingsFromFile\n \\sa SDL_GetGamepadMapping\n \\sa SDL_GetGamepadMappingForGUID\n \\sa SDL_HINT_GAMECONTROLLERCONFIG\n \\sa SDL_HINT_GAMECONTROLLERCONFIG_FILE\n \\sa SDL_EVENT_GAMEPAD_ADDED"]
     pub fn SDL_AddGamepadMappingsFromIO(
         src: *mut SDL_IOStream,
         closeio: bool,
     ) -> libc::c_int;
 }
 extern "C" {
-    #[doc = " Load a set of gamepad mappings from a file.\n\n You can call this function several times, if needed, to load different\n database files.\n\n If a new mapping is loaded for an already known gamepad GUID, the later\n version will overwrite the one currently loaded.\n\n Mappings not belonging to the current platform or with no platform field\n specified will be ignored (i.e. mappings for Linux will be ignored in\n Windows, etc).\n\n \\param file the mappings file to load.\n \\returns the number of mappings added or -1 on failure; call SDL_GetError()\n          for more information.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_AddGamepadMapping\n \\sa SDL_AddGamepadMappingsFromIO\n \\sa SDL_GetGamepadMapping\n \\sa SDL_GetGamepadMappingForGUID"]
+    #[doc = " Load a set of gamepad mappings from a file.\n\n You can call this function several times, if needed, to load different\n database files.\n\n If a new mapping is loaded for an already known gamepad GUID, the later\n version will overwrite the one currently loaded.\n\n Any new mappings for already plugged in controllers will generate\n SDL_EVENT_GAMEPAD_ADDED events.\n\n Mappings not belonging to the current platform or with no platform field\n specified will be ignored (i.e. mappings for Linux will be ignored in\n Windows, etc).\n\n \\param file the mappings file to load.\n \\returns the number of mappings added or -1 on failure; call SDL_GetError()\n          for more information.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_AddGamepadMapping\n \\sa SDL_AddGamepadMappingsFromIO\n \\sa SDL_GetGamepadMapping\n \\sa SDL_GetGamepadMappingForGUID\n \\sa SDL_HINT_GAMECONTROLLERCONFIG\n \\sa SDL_HINT_GAMECONTROLLERCONFIG_FILE\n \\sa SDL_EVENT_GAMEPAD_ADDED"]
     pub fn SDL_AddGamepadMappingsFromFile(file: *const libc::c_char) -> libc::c_int;
 }
 extern "C" {
@@ -9094,6 +9094,8 @@ pub enum SDL_EventType {
     SDL_EVENT_RENDER_TARGETS_RESET = 8192,
     #[doc = "< The device has been reset and all textures need to be recreated"]
     SDL_EVENT_RENDER_DEVICE_RESET = 8193,
+    #[doc = "< The device has been lost and can't be recovered."]
+    SDL_EVENT_RENDER_DEVICE_LOST = 8194,
     SDL_EVENT_PRIVATE0 = 16384,
     SDL_EVENT_PRIVATE1 = 16385,
     SDL_EVENT_PRIVATE2 = 16386,
@@ -9404,7 +9406,7 @@ pub struct SDL_JoyButtonEvent {
     pub padding1: Uint8,
     pub padding2: Uint8,
 }
-#[doc = " Joystick device event structure (event.jdevice.*)\n\n \\since This struct is available since SDL 3.0.0."]
+#[doc = " Joystick device event structure (event.jdevice.*)\n\n SDL will send JOYSTICK_ADDED events for devices that are already plugged in\n during SDL_Init.\n\n \\since This struct is available since SDL 3.0.0.\n\n \\sa SDL_GamepadDeviceEvent"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SDL_JoyDeviceEvent {
@@ -9470,7 +9472,7 @@ pub struct SDL_GamepadButtonEvent {
     pub padding1: Uint8,
     pub padding2: Uint8,
 }
-#[doc = " Gamepad device event structure (event.gdevice.*)\n\n \\since This struct is available since SDL 3.0.0."]
+#[doc = " Gamepad device event structure (event.gdevice.*)\n\n Joysticks that are supported gamepads receive both an SDL_JoyDeviceEvent\n and an SDL_GamepadDeviceEvent.\n\n SDL will send GAMEPAD_ADDED events for joysticks that are already plugged\n in during SDL_Init() and are recognized as gamepads. It will also send\n events for joysticks that get gamepad mappings at runtime.\n\n \\since This struct is available since SDL 3.0.0.\n\n \\sa SDL_JoyDeviceEvent"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SDL_GamepadDeviceEvent {

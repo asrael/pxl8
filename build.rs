@@ -12,17 +12,27 @@ fn main() {
     #[cfg(target_os = "linux")]
     println!("cargo:rustc-link-arg=-Wl,-rpath,$ORIGIN");
 
-    copy_dylib();
-}
-
-#[cfg(target_os = "windows")]
-fn copy_dylib() {
-    copy_sdl("lib/SDL3.dll");
+    copy_sdl_dylib();
+    link_system_libs();
 }
 
 #[cfg(target_os = "linux")]
-fn copy_dylib() {
+fn copy_sdl_dylib() {
     copy_sdl("lib/libSDL3.so");
+}
+
+#[cfg(target_os = "linux")]
+fn link_system_libs() {
+    println!("cargo:rustc-link-lib=c");
+    println!("cargo:rustc-link-lib=gcc_s");
+}
+
+#[cfg(target_os = "windows")]
+fn link_system_libs() {}
+
+#[cfg(target_os = "windows")]
+fn copy_sdl_dylib() {
+    copy_sdl("lib/SDL3.dll");
 }
 
 fn copy_sdl(sdl_src: &str) {
