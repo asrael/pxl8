@@ -11196,7 +11196,7 @@ extern "C" {
     pub fn SDL_SetClipboardText(text: *const libc::c_char) -> bool;
 }
 extern "C" {
-    #[doc = " Get UTF-8 text from the clipboard.\n\n This functions returns empty string if there was not enough memory left for\n a copy of the clipboard's content.\n\n \\returns the clipboard text on success or an empty string on failure; call\n          SDL_GetError() for more information. This should be freed with\n          SDL_free() when it is no longer needed.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasClipboardText\n \\sa SDL_SetClipboardText"]
+    #[doc = " Get UTF-8 text from the clipboard.\n\n This functions returns an empty string if there was not enough memory left\n for a copy of the clipboard's content.\n\n \\returns the clipboard text on success or an empty string on failure; call\n          SDL_GetError() for more information. This should be freed with\n          SDL_free() when it is no longer needed.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasClipboardText\n \\sa SDL_SetClipboardText"]
     pub fn SDL_GetClipboardText() -> *mut libc::c_char;
 }
 extern "C" {
@@ -11208,7 +11208,7 @@ extern "C" {
     pub fn SDL_SetPrimarySelectionText(text: *const libc::c_char) -> bool;
 }
 extern "C" {
-    #[doc = " Get UTF-8 text from the primary selection.\n\n This functions returns empty string if there was not enough memory left for\n a copy of the primary selection's content.\n\n \\returns the primary selection text on success or an empty string on\n          failure; call SDL_GetError() for more information. This should be\n          freed with SDL_free() when it is no longer needed.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasPrimarySelectionText\n \\sa SDL_SetPrimarySelectionText"]
+    #[doc = " Get UTF-8 text from the primary selection.\n\n This functions returns an empty string if there was not enough memory left\n for a copy of the primary selection's content.\n\n \\returns the primary selection text on success or an empty string on\n          failure; call SDL_GetError() for more information. This should be\n          freed with SDL_free() when it is no longer needed.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasPrimarySelectionText\n \\sa SDL_SetPrimarySelectionText"]
     pub fn SDL_GetPrimarySelectionText() -> *mut libc::c_char;
 }
 extern "C" {
