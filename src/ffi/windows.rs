@@ -4521,7 +4521,7 @@ pub type SDL_CompareCallback = ::core::option::Option<
     ) -> libc::c_int,
 >;
 extern "C" {
-    #[doc = " Sort an array.\n\n For example:\n\n ```c\n typedef struct {\n     int key;\n     const char *string;\n } data;\n\n int SDLCALL compare(const void *a, const void *b)\n {\n     const data *A = (const data *)a;\n     const data *B = (const data *)b;\n\n     if (A->n < B->n) {\n         return -1;\n     } else if (B->n < A->n) {\n         return 1;\n     } else {\n         return 0;\n     }\n }\n\n data values[] = {\n     { 3, \"third\" }, { 1, \"first\" }, { 2, \"second\" }\n };\n\n SDL_qsort(values, SDL_arraysize(values), sizeof(values[0]), compare);\n ```\n\n \\param base a pointer to the start of the array.\n \\param nmemb the number of elements in the array.\n \\param size the size of the elements in the array.\n \\param compare a function used to compare elements in the array.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_bsearch\n \\sa SDL_qsort_r"]
+    #[doc = " Sort an array.\n\n For example:\n\n ```c\n typedef struct {\n     int key;\n     const char *string;\n } data;\n\n int SDLCALL compare(const void *a, const void *b)\n {\n     const data *A = (const data *)a;\n     const data *B = (const data *)b;\n\n     if (A->n < B->n) {\n         return -1;\n     } else if (B->n < A->n) {\n         return 1;\n     } else {\n         return 0;\n     }\n }\n\n data values[] = {\n     { 3, \"third\" }, { 1, \"first\" }, { 2, \"second\" }\n };\n\n SDL_qsort(values, SDL_arraysize(values), sizeof(values[0]), compare);\n ```\n\n \\param base a pointer to the start of the array.\n \\param nmemb the number of elements in the array.\n \\param size the size of the elements in the array.\n \\param compare a function used to compare elements in the array.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_bsearch\n \\sa SDL_qsort_r"]
     pub fn SDL_qsort(
         base: *mut libc::c_void,
         nmemb: usize,
@@ -4530,7 +4530,7 @@ extern "C" {
     );
 }
 extern "C" {
-    #[doc = " Perform a binary search on a previously sorted array.\n\n For example:\n\n ```c\n typedef struct {\n     int key;\n     const char *string;\n } data;\n\n int SDLCALL compare(const void *a, const void *b)\n {\n     const data *A = (const data *)a;\n     const data *B = (const data *)b;\n\n     if (A->n < B->n) {\n         return -1;\n     } else if (B->n < A->n) {\n         return 1;\n     } else {\n         return 0;\n     }\n }\n\n data values[] = {\n     { 1, \"first\" }, { 2, \"second\" }, { 3, \"third\" }\n };\n data key = { 2, NULL };\n\n data *result = SDL_bsearch(&key, values, SDL_arraysize(values), sizeof(values[0]), compare);\n ```\n\n \\param key a pointer to a key equal to the element being searched for.\n \\param base a pointer to the start of the array.\n \\param nmemb the number of elements in the array.\n \\param size the size of the elements in the array.\n \\param compare a function used to compare elements in the array.\n \\returns a pointer to the matching element in the array, or NULL if not\n          found.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_bsearch_r\n \\sa SDL_qsort"]
+    #[doc = " Perform a binary search on a previously sorted array.\n\n For example:\n\n ```c\n typedef struct {\n     int key;\n     const char *string;\n } data;\n\n int SDLCALL compare(const void *a, const void *b)\n {\n     const data *A = (const data *)a;\n     const data *B = (const data *)b;\n\n     if (A->n < B->n) {\n         return -1;\n     } else if (B->n < A->n) {\n         return 1;\n     } else {\n         return 0;\n     }\n }\n\n data values[] = {\n     { 1, \"first\" }, { 2, \"second\" }, { 3, \"third\" }\n };\n data key = { 2, NULL };\n\n data *result = SDL_bsearch(&key, values, SDL_arraysize(values), sizeof(values[0]), compare);\n ```\n\n \\param key a pointer to a key equal to the element being searched for.\n \\param base a pointer to the start of the array.\n \\param nmemb the number of elements in the array.\n \\param size the size of the elements in the array.\n \\param compare a function used to compare elements in the array.\n \\returns a pointer to the matching element in the array, or NULL if not\n          found.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_bsearch_r\n \\sa SDL_qsort"]
     pub fn SDL_bsearch(
         key: *const libc::c_void,
         base: *const libc::c_void,
@@ -4548,7 +4548,7 @@ pub type SDL_CompareCallback_r = ::core::option::Option<
     ) -> libc::c_int,
 >;
 extern "C" {
-    #[doc = " Sort an array, passing a userdata pointer to the compare function.\n\n For example:\n\n ```c\n typedef enum {\n     sort_increasing,\n     sort_decreasing,\n } sort_method;\n\n typedef struct {\n     int key;\n     const char *string;\n } data;\n\n int SDLCALL compare(const void *userdata, const void *a, const void *b)\n {\n     sort_method method = (sort_method)(uintptr_t)userdata;\n     const data *A = (const data *)a;\n     const data *B = (const data *)b;\n\n     if (A->n < B->n) {\n         return (method == sort_increasing) ? -1 : 1;\n     } else if (B->n < A->n) {\n         return (method == sort_increasing) ? 1 : -1;\n     } else {\n         return 0;\n     }\n }\n\n data values[] = {\n     { 3, \"third\" }, { 1, \"first\" }, { 2, \"second\" }\n };\n\n SDL_qsort_r(values, SDL_arraysize(values), sizeof(values[0]), compare, (const void *)(uintptr_t)sort_increasing);\n ```\n\n \\param base a pointer to the start of the array.\n \\param nmemb the number of elements in the array.\n \\param size the size of the elements in the array.\n \\param compare a function used to compare elements in the array.\n \\param userdata a pointer to pass to the compare function.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_bsearch_r\n \\sa SDL_qsort"]
+    #[doc = " Sort an array, passing a userdata pointer to the compare function.\n\n For example:\n\n ```c\n typedef enum {\n     sort_increasing,\n     sort_decreasing,\n } sort_method;\n\n typedef struct {\n     int key;\n     const char *string;\n } data;\n\n int SDLCALL compare(const void *userdata, const void *a, const void *b)\n {\n     sort_method method = (sort_method)(uintptr_t)userdata;\n     const data *A = (const data *)a;\n     const data *B = (const data *)b;\n\n     if (A->key < B->key) {\n         return (method == sort_increasing) ? -1 : 1;\n     } else if (B->key < A->key) {\n         return (method == sort_increasing) ? 1 : -1;\n     } else {\n         return 0;\n     }\n }\n\n data values[] = {\n     { 3, \"third\" }, { 1, \"first\" }, { 2, \"second\" }\n };\n\n SDL_qsort_r(values, SDL_arraysize(values), sizeof(values[0]), compare, (const void *)(uintptr_t)sort_increasing);\n ```\n\n \\param base a pointer to the start of the array.\n \\param nmemb the number of elements in the array.\n \\param size the size of the elements in the array.\n \\param compare a function used to compare elements in the array.\n \\param userdata a pointer to pass to the compare function.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_bsearch_r\n \\sa SDL_qsort"]
     pub fn SDL_qsort_r(
         base: *mut libc::c_void,
         nmemb: usize,
@@ -4558,7 +4558,7 @@ extern "C" {
     );
 }
 extern "C" {
-    #[doc = " Perform a binary search on a previously sorted array, passing a userdata\n pointer to the compare function.\n\n For example:\n\n ```c\n typedef enum {\n     sort_increasing,\n     sort_decreasing,\n } sort_method;\n\n typedef struct {\n     int key;\n     const char *string;\n } data;\n\n int SDLCALL compare(const void *userdata, const void *a, const void *b)\n {\n     sort_method method = (sort_method)(uintptr_t)userdata;\n     const data *A = (const data *)a;\n     const data *B = (const data *)b;\n\n     if (A->n < B->n) {\n         return (method == sort_increasing) ? -1 : 1;\n     } else if (B->n < A->n) {\n         return (method == sort_increasing) ? 1 : -1;\n     } else {\n         return 0;\n     }\n }\n\n data values[] = {\n     { 1, \"first\" }, { 2, \"second\" }, { 3, \"third\" }\n };\n data key = { 2, NULL };\n\n data *result = SDL_bsearch_r(&key, values, SDL_arraysize(values), sizeof(values[0]), compare, (const void *)(uintptr_t)sort_increasing);\n ```\n\n \\param key a pointer to a key equal to the element being searched for.\n \\param base a pointer to the start of the array.\n \\param nmemb the number of elements in the array.\n \\param size the size of the elements in the array.\n \\param compare a function used to compare elements in the array.\n \\param userdata a pointer to pass to the compare function.\n \\returns a pointer to the matching element in the array, or NULL if not\n          found.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_bsearch\n \\sa SDL_qsort_r"]
+    #[doc = " Perform a binary search on a previously sorted array, passing a userdata\n pointer to the compare function.\n\n For example:\n\n ```c\n typedef enum {\n     sort_increasing,\n     sort_decreasing,\n } sort_method;\n\n typedef struct {\n     int key;\n     const char *string;\n } data;\n\n int SDLCALL compare(const void *userdata, const void *a, const void *b)\n {\n     sort_method method = (sort_method)(uintptr_t)userdata;\n     const data *A = (const data *)a;\n     const data *B = (const data *)b;\n\n     if (A->key < B->key) {\n         return (method == sort_increasing) ? -1 : 1;\n     } else if (B->key < A->key) {\n         return (method == sort_increasing) ? 1 : -1;\n     } else {\n         return 0;\n     }\n }\n\n data values[] = {\n     { 1, \"first\" }, { 2, \"second\" }, { 3, \"third\" }\n };\n data key = { 2, NULL };\n\n data *result = SDL_bsearch_r(&key, values, SDL_arraysize(values), sizeof(values[0]), compare, (const void *)(uintptr_t)sort_increasing);\n ```\n\n \\param key a pointer to a key equal to the element being searched for.\n \\param base a pointer to the start of the array.\n \\param nmemb the number of elements in the array.\n \\param size the size of the elements in the array.\n \\param compare a function used to compare elements in the array.\n \\param userdata a pointer to pass to the compare function.\n \\returns a pointer to the matching element in the array, or NULL if not\n          found.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_bsearch\n \\sa SDL_qsort_r"]
     pub fn SDL_bsearch_r(
         key: *const libc::c_void,
         base: *const libc::c_void,
@@ -7608,23 +7608,23 @@ extern "C" {
     ) -> libc::c_longlong;
 }
 extern "C" {
-    #[doc = " Set the SDL error message for the current thread.\n\n Calling this function will replace any previous error message that was set.\n\n This function always returns false, since SDL frequently uses false to\n signify a failing result, leading to this idiom:\n\n ```c\n if (error_code) {\n     return SDL_SetError(\"This operation has failed: %d\", error_code);\n }\n ```\n\n \\param fmt a printf()-style message format string.\n \\param ... additional parameters matching % tokens in the `fmt` string, if\n            any.\n \\returns false.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_ClearError\n \\sa SDL_GetError\n \\sa SDL_SetErrorV"]
+    #[doc = " Set the SDL error message for the current thread.\n\n Calling this function will replace any previous error message that was set.\n\n This function always returns false, since SDL frequently uses false to\n signify a failing result, leading to this idiom:\n\n ```c\n if (error_code) {\n     return SDL_SetError(\"This operation has failed: %d\", error_code);\n }\n ```\n\n \\param fmt a printf()-style message format string.\n \\param ... additional parameters matching % tokens in the `fmt` string, if\n            any.\n \\returns false.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_ClearError\n \\sa SDL_GetError\n \\sa SDL_SetErrorV"]
     pub fn SDL_SetError(fmt: *const libc::c_char, ...) -> bool;
 }
 extern "C" {
-    #[doc = " Set the SDL error message for the current thread.\n\n Calling this function will replace any previous error message that was set.\n\n \\param fmt a printf()-style message format string.\n \\param ap a variable argument list.\n \\returns false.\n\n \\since This function is available since SDL 3.1.4.\n\n \\sa SDL_ClearError\n \\sa SDL_GetError\n \\sa SDL_SetError"]
+    #[doc = " Set the SDL error message for the current thread.\n\n Calling this function will replace any previous error message that was set.\n\n \\param fmt a printf()-style message format string.\n \\param ap a variable argument list.\n \\returns false.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.1.4.\n\n \\sa SDL_ClearError\n \\sa SDL_GetError\n \\sa SDL_SetError"]
     pub fn SDL_SetErrorV(fmt: *const libc::c_char, ap: va_list) -> bool;
 }
 extern "C" {
-    #[doc = " Set an error indicating that memory allocation failed.\n\n This function does not do any memory allocation.\n\n \\returns false.\n\n \\since This function is available since SDL 3.0.0."]
+    #[doc = " Set an error indicating that memory allocation failed.\n\n This function does not do any memory allocation.\n\n \\returns false.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0."]
     pub fn SDL_OutOfMemory() -> bool;
 }
 extern "C" {
-    #[doc = " Retrieve a message about the last error that occurred on the current\n thread.\n\n It is possible for multiple errors to occur before calling SDL_GetError().\n Only the last error is returned.\n\n The message is only applicable when an SDL function has signaled an error.\n You must check the return values of SDL function calls to determine when to\n appropriately call SDL_GetError(). You should *not* use the results of\n SDL_GetError() to decide if an error has occurred! Sometimes SDL will set\n an error string even when reporting success.\n\n SDL will *not* clear the error string for successful API calls. You *must*\n check return values for failure cases before you can assume the error\n string applies.\n\n Error strings are set per-thread, so an error set in a different thread\n will not interfere with the current thread's operation.\n\n The returned value is a thread-local string which will remain valid until\n the current thread's error string is changed. The caller should make a copy\n if the value is needed after the next SDL API call.\n\n \\returns a message with information about the specific error that occurred,\n          or an empty string if there hasn't been an error message set since\n          the last call to SDL_ClearError().\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_ClearError\n \\sa SDL_SetError"]
+    #[doc = " Retrieve a message about the last error that occurred on the current\n thread.\n\n It is possible for multiple errors to occur before calling SDL_GetError().\n Only the last error is returned.\n\n The message is only applicable when an SDL function has signaled an error.\n You must check the return values of SDL function calls to determine when to\n appropriately call SDL_GetError(). You should *not* use the results of\n SDL_GetError() to decide if an error has occurred! Sometimes SDL will set\n an error string even when reporting success.\n\n SDL will *not* clear the error string for successful API calls. You *must*\n check return values for failure cases before you can assume the error\n string applies.\n\n Error strings are set per-thread, so an error set in a different thread\n will not interfere with the current thread's operation.\n\n The returned value is a thread-local string which will remain valid until\n the current thread's error string is changed. The caller should make a copy\n if the value is needed after the next SDL API call.\n\n \\returns a message with information about the specific error that occurred,\n          or an empty string if there hasn't been an error message set since\n          the last call to SDL_ClearError().\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_ClearError\n \\sa SDL_SetError"]
     pub fn SDL_GetError() -> *const libc::c_char;
 }
 extern "C" {
-    #[doc = " Clear any previous error message for this thread.\n\n \\returns true.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_GetError\n \\sa SDL_SetError"]
+    #[doc = " Clear any previous error message for this thread.\n\n \\returns true.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_GetError\n \\sa SDL_SetError"]
     pub fn SDL_ClearError() -> bool;
 }
 #[doc = " SDL properties ID\n\n \\since This datatype is available since SDL 3.0.0."]
@@ -11258,75 +11258,75 @@ extern "C" {
     ) -> *mut *mut libc::c_char;
 }
 extern "C" {
-    #[doc = " Get the number of logical CPU cores available.\n\n \\returns the total number of logical CPU cores. On CPUs that include\n          technologies such as hyperthreading, the number of logical cores\n          may be more than the number of physical cores.\n\n \\since This function is available since SDL 3.0.0."]
+    #[doc = " Get the number of logical CPU cores available.\n\n \\returns the total number of logical CPU cores. On CPUs that include\n          technologies such as hyperthreading, the number of logical cores\n          may be more than the number of physical cores.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0."]
     pub fn SDL_GetNumLogicalCPUCores() -> libc::c_int;
 }
 extern "C" {
-    #[doc = " Determine the L1 cache line size of the CPU.\n\n This is useful for determining multi-threaded structure padding or SIMD\n prefetch sizes.\n\n \\returns the L1 cache line size of the CPU, in bytes.\n\n \\since This function is available since SDL 3.0.0."]
+    #[doc = " Determine the L1 cache line size of the CPU.\n\n This is useful for determining multi-threaded structure padding or SIMD\n prefetch sizes.\n\n \\returns the L1 cache line size of the CPU, in bytes.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0."]
     pub fn SDL_GetCPUCacheLineSize() -> libc::c_int;
 }
 extern "C" {
-    #[doc = " Determine whether the CPU has AltiVec features.\n\n This always returns false on CPUs that aren't using PowerPC instruction\n sets.\n\n \\returns true if the CPU has AltiVec features or false if not.\n\n \\since This function is available since SDL 3.0.0."]
+    #[doc = " Determine whether the CPU has AltiVec features.\n\n This always returns false on CPUs that aren't using PowerPC instruction\n sets.\n\n \\returns true if the CPU has AltiVec features or false if not.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0."]
     pub fn SDL_HasAltiVec() -> bool;
 }
 extern "C" {
-    #[doc = " Determine whether the CPU has MMX features.\n\n This always returns false on CPUs that aren't using Intel instruction sets.\n\n \\returns true if the CPU has MMX features or false if not.\n\n \\since This function is available since SDL 3.0.0."]
+    #[doc = " Determine whether the CPU has MMX features.\n\n This always returns false on CPUs that aren't using Intel instruction sets.\n\n \\returns true if the CPU has MMX features or false if not.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0."]
     pub fn SDL_HasMMX() -> bool;
 }
 extern "C" {
-    #[doc = " Determine whether the CPU has SSE features.\n\n This always returns false on CPUs that aren't using Intel instruction sets.\n\n \\returns true if the CPU has SSE features or false if not.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasSSE2\n \\sa SDL_HasSSE3\n \\sa SDL_HasSSE41\n \\sa SDL_HasSSE42"]
+    #[doc = " Determine whether the CPU has SSE features.\n\n This always returns false on CPUs that aren't using Intel instruction sets.\n\n \\returns true if the CPU has SSE features or false if not.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasSSE2\n \\sa SDL_HasSSE3\n \\sa SDL_HasSSE41\n \\sa SDL_HasSSE42"]
     pub fn SDL_HasSSE() -> bool;
 }
 extern "C" {
-    #[doc = " Determine whether the CPU has SSE2 features.\n\n This always returns false on CPUs that aren't using Intel instruction sets.\n\n \\returns true if the CPU has SSE2 features or false if not.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasSSE\n \\sa SDL_HasSSE3\n \\sa SDL_HasSSE41\n \\sa SDL_HasSSE42"]
+    #[doc = " Determine whether the CPU has SSE2 features.\n\n This always returns false on CPUs that aren't using Intel instruction sets.\n\n \\returns true if the CPU has SSE2 features or false if not.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasSSE\n \\sa SDL_HasSSE3\n \\sa SDL_HasSSE41\n \\sa SDL_HasSSE42"]
     pub fn SDL_HasSSE2() -> bool;
 }
 extern "C" {
-    #[doc = " Determine whether the CPU has SSE3 features.\n\n This always returns false on CPUs that aren't using Intel instruction sets.\n\n \\returns true if the CPU has SSE3 features or false if not.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasSSE\n \\sa SDL_HasSSE2\n \\sa SDL_HasSSE41\n \\sa SDL_HasSSE42"]
+    #[doc = " Determine whether the CPU has SSE3 features.\n\n This always returns false on CPUs that aren't using Intel instruction sets.\n\n \\returns true if the CPU has SSE3 features or false if not.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasSSE\n \\sa SDL_HasSSE2\n \\sa SDL_HasSSE41\n \\sa SDL_HasSSE42"]
     pub fn SDL_HasSSE3() -> bool;
 }
 extern "C" {
-    #[doc = " Determine whether the CPU has SSE4.1 features.\n\n This always returns false on CPUs that aren't using Intel instruction sets.\n\n \\returns true if the CPU has SSE4.1 features or false if not.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasSSE\n \\sa SDL_HasSSE2\n \\sa SDL_HasSSE3\n \\sa SDL_HasSSE42"]
+    #[doc = " Determine whether the CPU has SSE4.1 features.\n\n This always returns false on CPUs that aren't using Intel instruction sets.\n\n \\returns true if the CPU has SSE4.1 features or false if not.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasSSE\n \\sa SDL_HasSSE2\n \\sa SDL_HasSSE3\n \\sa SDL_HasSSE42"]
     pub fn SDL_HasSSE41() -> bool;
 }
 extern "C" {
-    #[doc = " Determine whether the CPU has SSE4.2 features.\n\n This always returns false on CPUs that aren't using Intel instruction sets.\n\n \\returns true if the CPU has SSE4.2 features or false if not.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasSSE\n \\sa SDL_HasSSE2\n \\sa SDL_HasSSE3\n \\sa SDL_HasSSE41"]
+    #[doc = " Determine whether the CPU has SSE4.2 features.\n\n This always returns false on CPUs that aren't using Intel instruction sets.\n\n \\returns true if the CPU has SSE4.2 features or false if not.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasSSE\n \\sa SDL_HasSSE2\n \\sa SDL_HasSSE3\n \\sa SDL_HasSSE41"]
     pub fn SDL_HasSSE42() -> bool;
 }
 extern "C" {
-    #[doc = " Determine whether the CPU has AVX features.\n\n This always returns false on CPUs that aren't using Intel instruction sets.\n\n \\returns true if the CPU has AVX features or false if not.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasAVX2\n \\sa SDL_HasAVX512F"]
+    #[doc = " Determine whether the CPU has AVX features.\n\n This always returns false on CPUs that aren't using Intel instruction sets.\n\n \\returns true if the CPU has AVX features or false if not.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasAVX2\n \\sa SDL_HasAVX512F"]
     pub fn SDL_HasAVX() -> bool;
 }
 extern "C" {
-    #[doc = " Determine whether the CPU has AVX2 features.\n\n This always returns false on CPUs that aren't using Intel instruction sets.\n\n \\returns true if the CPU has AVX2 features or false if not.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasAVX\n \\sa SDL_HasAVX512F"]
+    #[doc = " Determine whether the CPU has AVX2 features.\n\n This always returns false on CPUs that aren't using Intel instruction sets.\n\n \\returns true if the CPU has AVX2 features or false if not.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasAVX\n \\sa SDL_HasAVX512F"]
     pub fn SDL_HasAVX2() -> bool;
 }
 extern "C" {
-    #[doc = " Determine whether the CPU has AVX-512F (foundation) features.\n\n This always returns false on CPUs that aren't using Intel instruction sets.\n\n \\returns true if the CPU has AVX-512F features or false if not.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasAVX\n \\sa SDL_HasAVX2"]
+    #[doc = " Determine whether the CPU has AVX-512F (foundation) features.\n\n This always returns false on CPUs that aren't using Intel instruction sets.\n\n \\returns true if the CPU has AVX-512F features or false if not.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasAVX\n \\sa SDL_HasAVX2"]
     pub fn SDL_HasAVX512F() -> bool;
 }
 extern "C" {
-    #[doc = " Determine whether the CPU has ARM SIMD (ARMv6) features.\n\n This is different from ARM NEON, which is a different instruction set.\n\n This always returns false on CPUs that aren't using ARM instruction sets.\n\n \\returns true if the CPU has ARM SIMD features or false if not.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasNEON"]
+    #[doc = " Determine whether the CPU has ARM SIMD (ARMv6) features.\n\n This is different from ARM NEON, which is a different instruction set.\n\n This always returns false on CPUs that aren't using ARM instruction sets.\n\n \\returns true if the CPU has ARM SIMD features or false if not.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_HasNEON"]
     pub fn SDL_HasARMSIMD() -> bool;
 }
 extern "C" {
-    #[doc = " Determine whether the CPU has NEON (ARM SIMD) features.\n\n This always returns false on CPUs that aren't using ARM instruction sets.\n\n \\returns true if the CPU has ARM NEON features or false if not.\n\n \\since This function is available since SDL 3.0.0."]
+    #[doc = " Determine whether the CPU has NEON (ARM SIMD) features.\n\n This always returns false on CPUs that aren't using ARM instruction sets.\n\n \\returns true if the CPU has ARM NEON features or false if not.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0."]
     pub fn SDL_HasNEON() -> bool;
 }
 extern "C" {
-    #[doc = " Determine whether the CPU has LSX (LOONGARCH SIMD) features.\n\n This always returns false on CPUs that aren't using LOONGARCH instruction\n sets.\n\n \\returns true if the CPU has LOONGARCH LSX features or false if not.\n\n \\since This function is available since SDL 3.0.0."]
+    #[doc = " Determine whether the CPU has LSX (LOONGARCH SIMD) features.\n\n This always returns false on CPUs that aren't using LOONGARCH instruction\n sets.\n\n \\returns true if the CPU has LOONGARCH LSX features or false if not.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0."]
     pub fn SDL_HasLSX() -> bool;
 }
 extern "C" {
-    #[doc = " Determine whether the CPU has LASX (LOONGARCH SIMD) features.\n\n This always returns false on CPUs that aren't using LOONGARCH instruction\n sets.\n\n \\returns true if the CPU has LOONGARCH LASX features or false if not.\n\n \\since This function is available since SDL 3.0.0."]
+    #[doc = " Determine whether the CPU has LASX (LOONGARCH SIMD) features.\n\n This always returns false on CPUs that aren't using LOONGARCH instruction\n sets.\n\n \\returns true if the CPU has LOONGARCH LASX features or false if not.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0."]
     pub fn SDL_HasLASX() -> bool;
 }
 extern "C" {
-    #[doc = " Get the amount of RAM configured in the system.\n\n \\returns the amount of RAM configured in the system in MiB.\n\n \\since This function is available since SDL 3.0.0."]
+    #[doc = " Get the amount of RAM configured in the system.\n\n \\returns the amount of RAM configured in the system in MiB.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0."]
     pub fn SDL_GetSystemRAM() -> libc::c_int;
 }
 extern "C" {
-    #[doc = " Report the alignment this system needs for SIMD allocations.\n\n This will return the minimum number of bytes to which a pointer must be\n aligned to be compatible with SIMD instructions on the current machine. For\n example, if the machine supports SSE only, it will return 16, but if it\n supports AVX-512F, it'll return 64 (etc). This only reports values for\n instruction sets SDL knows about, so if your SDL build doesn't have\n SDL_HasAVX512F(), then it might return 16 for the SSE support it sees and\n not 64 for the AVX-512 instructions that exist but SDL doesn't know about.\n Plan accordingly.\n\n \\returns the alignment in bytes needed for available, known SIMD\n          instructions.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_aligned_alloc\n \\sa SDL_aligned_free"]
+    #[doc = " Report the alignment this system needs for SIMD allocations.\n\n This will return the minimum number of bytes to which a pointer must be\n aligned to be compatible with SIMD instructions on the current machine. For\n example, if the machine supports SSE only, it will return 16, but if it\n supports AVX-512F, it'll return 64 (etc). This only reports values for\n instruction sets SDL knows about, so if your SDL build doesn't have\n SDL_HasAVX512F(), then it might return 16 for the SSE support it sees and\n not 64 for the AVX-512 instructions that exist but SDL doesn't know about.\n Plan accordingly.\n\n \\returns the alignment in bytes needed for available, known SIMD\n          instructions.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_aligned_alloc\n \\sa SDL_aligned_free"]
     pub fn SDL_GetSIMDAlignment() -> usize;
 }
 #[doc = " This is a unique ID for a display for the time it is connected to the\n system, and is never reused for the lifetime of the application.\n\n If the display is disconnected and reconnected, it will get a new ID.\n\n The value 0 is an invalid ID.\n\n \\since This datatype is available since SDL 3.0.0."]
@@ -14756,7 +14756,7 @@ pub struct SDL_CameraDeviceEvent {
     #[doc = "< SDL_CameraID for the device being added or removed or changing"]
     pub which: SDL_CameraID,
 }
-#[doc = " Touch finger event structure (event.tfinger.*)\n\n \\since This struct is available since SDL 3.0.0."]
+#[doc = " Touch finger event structure (event.tfinger.*)\n\n Coordinates in this event are normalized. `x` and `y` are normalized to a\n range between 0.0f and 1.0f, relative to the window, so (0,0) is the top\n left and (1,1) is the bottom right. Delta coordinates `dx` and `dy` are\n normalized in the ranges of -1.0f (traversed all the way from the bottom or\n right to all the way up or left) to 1.0f (traversed all the way from the\n top or left to all the way down or right).\n\n Note that while the coordinates are _normalized_, they are not _clamped_,\n which means in some circumstances you can get a value outside of this\n range. For example, a renderer using logical presentation might give a\n negative value when the touch is in the letterboxing. Some platforms might\n report a touch outside of the window, which will also be outside of the\n range.\n\n \\since This struct is available since SDL 3.0.0."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SDL_TouchFingerEvent {
@@ -15273,7 +15273,7 @@ extern "C" {
     ) -> bool;
 }
 extern "C" {
-    #[doc = " Copy a file.\n\n If the file at `newpath` already exists, it will be overwritten with the\n contents of the file at `oldpath`.\n\n This function will block until the copy is complete, which might be a\n significant time for large files on slow disks. On some platforms, the copy\n can be handed off to the OS itself, but on others SDL might just open both\n paths, and read from one and write to the other.\n\n Note that this is not an atomic operation! If something tries to read from\n `newpath` while the copy is in progress, it will see an incomplete copy of\n the data, and if the calling thread terminates (or the power goes out)\n during the copy, `oldpath`'s previous contents will be gone, replaced with\n an incomplete copy of the data. To avoid this risk, it is recommended that\n the app copy to a temporary file in the same directory as `newpath`, and if\n the copy is successful, use SDL_RenamePath() to replace `newpath` with the\n temporary file. This will ensure that reads of `newpath` will either see a\n complete copy of the data, or it will see the pre-copy state of `newpath`.\n\n This function attempts to synchronize the newly-copied data to disk before\n returning, if the platform allows it, so that the renaming trick will not\n have a problem in a system crash or power failure, where the file could be\n renamed but the contents never made it from the system file cache to the\n physical disk.\n\n If the copy fails for any reason, the state of `newpath` is undefined. It\n might be half a copy, it might be the untouched data of what was already\n there, or it might be a zero-byte file, etc.\n\n \\param oldpath the old path.\n \\param newpath the new path.\n \\returns true on success or false on failure; call SDL_GetError() for more\n          information.\n\n \\since This function is available since SDL 3.0.0."]
+    #[doc = " Copy a file.\n\n If the file at `newpath` already exists, it will be overwritten with the\n contents of the file at `oldpath`.\n\n This function will block until the copy is complete, which might be a\n significant time for large files on slow disks. On some platforms, the copy\n can be handed off to the OS itself, but on others SDL might just open both\n paths, and read from one and write to the other.\n\n Note that this is not an atomic operation! If something tries to read from\n `newpath` while the copy is in progress, it will see an incomplete copy of\n the data, and if the calling thread terminates (or the power goes out)\n during the copy, `newpath`'s previous contents will be gone, replaced with\n an incomplete copy of the data. To avoid this risk, it is recommended that\n the app copy to a temporary file in the same directory as `newpath`, and if\n the copy is successful, use SDL_RenamePath() to replace `newpath` with the\n temporary file. This will ensure that reads of `newpath` will either see a\n complete copy of the data, or it will see the pre-copy state of `newpath`.\n\n This function attempts to synchronize the newly-copied data to disk before\n returning, if the platform allows it, so that the renaming trick will not\n have a problem in a system crash or power failure, where the file could be\n renamed but the contents never made it from the system file cache to the\n physical disk.\n\n If the copy fails for any reason, the state of `newpath` is undefined. It\n might be half a copy, it might be the untouched data of what was already\n there, or it might be a zero-byte file, etc.\n\n \\param oldpath the old path.\n \\param newpath the new path.\n \\returns true on success or false on failure; call SDL_GetError() for more\n          information.\n\n \\since This function is available since SDL 3.0.0."]
     pub fn SDL_CopyFile(
         oldpath: *const libc::c_char,
         newpath: *const libc::c_char,
@@ -18756,7 +18756,7 @@ extern "C" {
     ) -> bool;
 }
 extern "C" {
-    #[doc = " Toggle VSync of the given renderer.\n\n When a renderer is created, vsync defaults to SDL_RENDERER_VSYNC_DISABLED.\n\n The `vsync` parameter can be 1 to synchronize present with every vertical\n refresh, 2 to synchronize present with every second vertical refresh, etc.,\n SDL_WINDOW_SURFACE_VSYNC_ADAPTIVE for late swap tearing (adaptive vsync),\n or SDL_WINDOW_SURFACE_VSYNC_DISABLED to disable. Not every value is\n supported by every driver, so you should check the return value to see\n whether the requested setting is supported.\n\n \\param renderer the renderer to toggle.\n \\param vsync the vertical refresh sync interval.\n \\returns true on success or false on failure; call SDL_GetError() for more\n          information.\n\n \\threadsafety You may only call this function from the main thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_GetRenderVSync"]
+    #[doc = " Toggle VSync of the given renderer.\n\n When a renderer is created, vsync defaults to SDL_RENDERER_VSYNC_DISABLED.\n\n The `vsync` parameter can be 1 to synchronize present with every vertical\n refresh, 2 to synchronize present with every second vertical refresh, etc.,\n SDL_RENDERER_VSYNC_ADAPTIVE for late swap tearing (adaptive vsync), or\n SDL_RENDERER_VSYNC_DISABLED to disable. Not every value is supported by\n every driver, so you should check the return value to see whether the\n requested setting is supported.\n\n \\param renderer the renderer to toggle.\n \\param vsync the vertical refresh sync interval.\n \\returns true on success or false on failure; call SDL_GetError() for more\n          information.\n\n \\threadsafety You may only call this function from the main thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_GetRenderVSync"]
     pub fn SDL_SetRenderVSync(
         renderer: *mut SDL_Renderer,
         vsync: libc::c_int,
@@ -19175,31 +19175,31 @@ extern "C" {
     ) -> libc::c_int;
 }
 extern "C" {
-    #[doc = " Get the number of milliseconds since SDL library initialization.\n\n \\returns an unsigned 64-bit value representing the number of milliseconds\n          since the SDL library initialized.\n\n \\since This function is available since SDL 3.0.0."]
+    #[doc = " Get the number of milliseconds since SDL library initialization.\n\n \\returns an unsigned 64-bit value representing the number of milliseconds\n          since the SDL library initialized.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0."]
     pub fn SDL_GetTicks() -> Uint64;
 }
 extern "C" {
-    #[doc = " Get the number of nanoseconds since SDL library initialization.\n\n \\returns an unsigned 64-bit value representing the number of nanoseconds\n          since the SDL library initialized.\n\n \\since This function is available since SDL 3.0.0."]
+    #[doc = " Get the number of nanoseconds since SDL library initialization.\n\n \\returns an unsigned 64-bit value representing the number of nanoseconds\n          since the SDL library initialized.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0."]
     pub fn SDL_GetTicksNS() -> Uint64;
 }
 extern "C" {
-    #[doc = " Get the current value of the high resolution counter.\n\n This function is typically used for profiling.\n\n The counter values are only meaningful relative to each other. Differences\n between values can be converted to times by using\n SDL_GetPerformanceFrequency().\n\n \\returns the current counter value.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_GetPerformanceFrequency"]
+    #[doc = " Get the current value of the high resolution counter.\n\n This function is typically used for profiling.\n\n The counter values are only meaningful relative to each other. Differences\n between values can be converted to times by using\n SDL_GetPerformanceFrequency().\n\n \\returns the current counter value.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_GetPerformanceFrequency"]
     pub fn SDL_GetPerformanceCounter() -> Uint64;
 }
 extern "C" {
-    #[doc = " Get the count per second of the high resolution counter.\n\n \\returns a platform-specific count per second.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_GetPerformanceCounter"]
+    #[doc = " Get the count per second of the high resolution counter.\n\n \\returns a platform-specific count per second.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_GetPerformanceCounter"]
     pub fn SDL_GetPerformanceFrequency() -> Uint64;
 }
 extern "C" {
-    #[doc = " Wait a specified number of milliseconds before returning.\n\n This function waits a specified number of milliseconds before returning. It\n waits at least the specified time, but possibly longer due to OS\n scheduling.\n\n \\param ms the number of milliseconds to delay.\n\n \\since This function is available since SDL 3.0.0."]
+    #[doc = " Wait a specified number of milliseconds before returning.\n\n This function waits a specified number of milliseconds before returning. It\n waits at least the specified time, but possibly longer due to OS\n scheduling.\n\n \\param ms the number of milliseconds to delay.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0."]
     pub fn SDL_Delay(ms: Uint32);
 }
 extern "C" {
-    #[doc = " Wait a specified number of nanoseconds before returning.\n\n This function waits a specified number of nanoseconds before returning. It\n waits at least the specified time, but possibly longer due to OS\n scheduling.\n\n \\param ns the number of nanoseconds to delay.\n\n \\since This function is available since SDL 3.0.0."]
+    #[doc = " Wait a specified number of nanoseconds before returning.\n\n This function waits a specified number of nanoseconds before returning. It\n waits at least the specified time, but possibly longer due to OS\n scheduling.\n\n \\param ns the number of nanoseconds to delay.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0."]
     pub fn SDL_DelayNS(ns: Uint64);
 }
 extern "C" {
-    #[doc = " Wait a specified number of nanoseconds before returning.\n\n This function waits a specified number of nanoseconds before returning. It\n will attempt to wait as close to the requested time as possible, busy\n waiting if necessary, but could return later due to OS scheduling.\n\n \\param ns the number of nanoseconds to delay.\n\n \\since This function is available since SDL 3.1.4."]
+    #[doc = " Wait a specified number of nanoseconds before returning.\n\n This function waits a specified number of nanoseconds before returning. It\n will attempt to wait as close to the requested time as possible, busy\n waiting if necessary, but could return later due to OS scheduling.\n\n \\param ns the number of nanoseconds to delay.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.1.4."]
     pub fn SDL_DelayPrecise(ns: Uint64);
 }
 #[doc = " Definition of the timer ID type.\n\n \\since This datatype is available since SDL 3.0.0."]
@@ -19237,7 +19237,7 @@ extern "C" {
     ) -> SDL_TimerID;
 }
 extern "C" {
-    #[doc = " Remove a timer created with SDL_AddTimer().\n\n \\param id the ID of the timer to remove.\n \\returns true on success or false on failure; call SDL_GetError() for more\n          information.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_AddTimer"]
+    #[doc = " Remove a timer created with SDL_AddTimer().\n\n \\param id the ID of the timer to remove.\n \\returns true on success or false on failure; call SDL_GetError() for more\n          information.\n\n \\threadsafety It is safe to call this function from any thread.\n\n \\since This function is available since SDL 3.0.0.\n\n \\sa SDL_AddTimer"]
     pub fn SDL_RemoveTimer(id: SDL_TimerID) -> bool;
 }
 extern "C" {
