@@ -2,14 +2,14 @@
 #![feature(lang_items)]
 #![no_std]
 
-extern crate alloc;
+pub extern crate alloc;
 
 pub mod ffi;
+mod macros;
 
 use ffi::{
-    SDL_AppResult, SDL_CreateWindow, SDL_Event, SDL_EventType,
-    SDL_Window, SDL_free, SDL_malloc, SDL_WINDOW_RESIZABLE,
-    SDL_EnterAppMainCallbacks,
+    SDL_AppResult, SDL_CreateWindow, SDL_EnterAppMainCallbacks, SDL_Event,
+    SDL_EventType, SDL_Window, SDL_free, SDL_malloc, SDL_WINDOW_RESIZABLE,
 };
 
 use alloc::alloc::{GlobalAlloc, Layout};
@@ -17,12 +17,18 @@ use alloc::ffi::CString;
 use core::ffi::{c_char, c_int, c_void};
 use core::panic::PanicInfo;
 use core::ptr::{self, NonNull};
+use libc::printf;
 
 #[derive(Default)]
-pub struct SDLAlloc;
+pub(crate) struct SDLAlloc;
 
 unsafe impl GlobalAlloc for SDLAlloc {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+        printf(
+            b"allocating %d bytes\n\0".as_ptr() as *const c_char,
+            layout.size() as c_int,
+        );
+
         SDL_malloc(layout.size()) as *mut u8
     }
 
@@ -37,6 +43,19 @@ static SDL_ALLOC: SDLAlloc = SDLAlloc;
 #[repr(C)]
 pub struct Context {
     window: NonNull<SDL_Window>,
+}
+
+pub fn run(argc: c_int, argv: *mut *mut c_char) {
+    unsafe {
+        SDL_EnterAppMainCallbacks(
+            argc,
+            argv as *mut *mut c_char,
+            Some(init),
+            Some(update),
+            Some(event),
+            Some(quit),
+        );
+    }
 }
 
 #[inline]
@@ -84,19 +103,6 @@ unsafe extern "C" fn quit(_appstate: *mut c_void, _result: SDL_AppResult) {}
 impl core::convert::From<u32> for SDL_EventType {
     fn from(value: u32) -> Self {
         unsafe { core::mem::transmute(value) }
-    }
-}
-
-pub fn run(argc: c_int, argv: *mut *mut c_char) {
-    unsafe {
-        SDL_EnterAppMainCallbacks(
-            argc,
-            argv as *mut *mut c_char,
-            Some(init),
-            Some(update),
-            Some(event),
-            Some(quit),
-        );
     }
 }
 
