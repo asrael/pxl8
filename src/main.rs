@@ -1,13 +1,28 @@
-#![windows_subsystem = "console"]
 #![no_std]
 #![no_main]
+#![windows_subsystem = "console"]
 
-use core::ffi::{c_char, c_int};
-use pxl8::*;
+use pxl8::Context;
 
-#[no_mangle]
-extern "C" fn main(argc: c_int, argv: *mut *mut c_char) -> c_int {
-    println!("hello, world...");
-    pxl8::run(argc, argv);
-    0
+#[derive(Debug)]
+struct Pxl8;
+
+impl pxl8::Game for Pxl8 {
+    fn init(&mut self, ctx: Context) {
+        pxl8::println!("pxl8 init...");
+    }
+
+    fn event(&mut self, ctx: Context) {
+        pxl8::println!("pxl8 frame...");
+    }
+
+    fn frame(&mut self, ctx: Context) {
+        pxl8::println!("pxl8 frame...");
+    }
+
+    fn quit(&mut self, ctx: Context) {
+        pxl8::println!("pxl8 quit...");
+    }
 }
+
+pxl8::load!(Pxl8 {});

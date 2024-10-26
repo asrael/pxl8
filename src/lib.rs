@@ -13,7 +13,7 @@ use ffi::{
 };
 
 use alloc::alloc::{GlobalAlloc, Layout};
-use alloc::ffi::CString;
+use alloc::boxed::Box;
 use core::ffi::{c_char, c_int, c_void};
 use core::panic::PanicInfo;
 use core::ptr::{self, NonNull};
@@ -24,15 +24,18 @@ pub(crate) struct SDLAlloc;
 
 unsafe impl GlobalAlloc for SDLAlloc {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        printf(
-            b"allocating %d bytes\n\0".as_ptr() as *const c_char,
-            layout.size() as c_int,
-        );
+        let size = layout.size() as c_int;
+
+        printf(c"allocating %d bytes\n".as_ptr(), size);
 
         SDL_malloc(layout.size()) as *mut u8
     }
 
-    unsafe fn dealloc(&self, ptr: *mut u8, _layout: Layout) {
+    unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
+        let size = layout.size() as c_int;
+
+        printf(c"freeing %d bytes\n".as_ptr(), size);
+
         SDL_free(ptr as *mut c_void);
     }
 }
@@ -41,37 +44,32 @@ unsafe impl GlobalAlloc for SDLAlloc {
 static SDL_ALLOC: SDLAlloc = SDLAlloc;
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct Context {
     window: NonNull<SDL_Window>,
 }
 
-pub fn run(argc: c_int, argv: *mut *mut c_char) {
-    unsafe {
-        SDL_EnterAppMainCallbacks(
-            argc,
-            argv as *mut *mut c_char,
-            Some(init),
-            Some(update),
-            Some(event),
-            Some(quit),
-        );
-    }
+pub trait Game {
+    fn init(&mut self, ctx: Context);
+    fn event(&mut self, ctx: Context);
+    fn frame(&mut self, ctx: Context);
+    fn quit(&mut self, ctx: Context);
 }
 
 #[inline]
-unsafe extern "C" fn init(
-    _appstate: *mut *mut c_void,
-    _argc: c_int,
-    _argv: *mut *mut c_char,
+pub unsafe extern "C" fn init(
+    appstate: *mut *mut c_void,
+    argc: c_int,
+    argv: *mut *mut c_char,
 ) -> SDL_AppResult {
-    let title = CString::new("pxl8").unwrap();
-    let window =
-        SDL_CreateWindow(title.as_ptr(), 1280, 720, SDL_WINDOW_RESIZABLE as u64);
+    let window = SDL_CreateWindow(*argv, 1280, 720, SDL_WINDOW_RESIZABLE as u64);
 
     if window != ptr::null_mut() {
-        let _ctx = Context {
+        let ctx = Box::into_raw(Box::new(Context {
             window: NonNull::new_unchecked(window),
-        };
+        }));
+
+        *appstate = ctx as *mut c_void;
 
         SDL_AppResult::SDL_APP_CONTINUE
     } else {
@@ -80,13 +78,13 @@ unsafe extern "C" fn init(
 }
 
 #[inline]
-unsafe extern "C" fn update(_appstate: *mut c_void) -> SDL_AppResult {
+pub unsafe extern "C" fn update(_appstate: *mut c_void) -> SDL_AppResult {
     SDL_AppResult::SDL_APP_CONTINUE
 }
 
 #[inline]
-unsafe extern "C" fn event(
-    _app_state: *mut c_void,
+pub unsafe extern "C" fn event(
+    _appstate: *mut c_void,
     event: *mut SDL_Event,
 ) -> SDL_AppResult {
     let event_type = (*event).type_.into();
@@ -98,10 +96,12 @@ unsafe extern "C" fn event(
 }
 
 #[inline]
-unsafe extern "C" fn quit(_appstate: *mut c_void, _result: SDL_AppResult) {}
+pub unsafe extern "C" fn quit(appstate: *mut c_void, _result: SDL_AppResult) {
+    let _ = Box::from_raw(appstate as *mut Context);
+}
 
-impl core::convert::From<u32> for SDL_EventType {
-    fn from(value: u32) -> Self {
+impl core::convert::From<ffi::Uint32> for SDL_EventType {
+    fn from(value: ffi::Uint32) -> Self {
         unsafe { core::mem::transmute(value) }
     }
 }
