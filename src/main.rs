@@ -2,26 +2,26 @@
 #![no_main]
 #![windows_subsystem = "console"]
 
-use pxl8::Context;
+use pxl8::{Context, println};
 
 #[derive(Debug)]
 struct Pxl8;
 
 impl pxl8::Game for Pxl8 {
     fn init(&mut self, ctx: Context) {
-        pxl8::println!("pxl8 init...");
+        println!("pxl8 init...");
     }
 
     fn event(&mut self, ctx: Context) {
-        pxl8::println!("pxl8 frame...");
+        println!("pxl8 frame...");
     }
 
     fn frame(&mut self, ctx: Context) {
-        pxl8::println!("pxl8 frame...");
+        println!("pxl8 frame...");
     }
 
     fn quit(&mut self, ctx: Context) {
-        pxl8::println!("pxl8 quit...");
+        println!("pxl8 quit...");
     }
 }
 
