@@ -2,7 +2,7 @@
 #![no_main]
 #![windows_subsystem = "console"]
 
-use pxl8::{println, Context};
+use pxl8::{println, Context, Game};
 
 #[derive(Debug)]
 struct Pxl8 {
@@ -10,30 +10,25 @@ struct Pxl8 {
     title: &'static str,
 }
 
-impl pxl8::Game for Pxl8 {
-    fn init(&mut self, ctx: Context) {
+impl Game for Pxl8 {
+    fn init(&mut self, ctx: &Context) {
         println!("pxl8 init...");
     }
 
-    fn event(&mut self, ctx: Context) {
+    fn event(&mut self, ctx: &Context) {
+        println!("pxl8 event...");
+    }
+
+    fn frame(&mut self, ctx: &Context) {
         println!("pxl8 frame...");
     }
 
-    fn frame(&mut self, ctx: Context) {
-        println!("pxl8 frame...");
-    }
-
-    fn quit(&mut self, ctx: Context) {
+    fn quit(&mut self, ctx: &Context) {
         println!("pxl8 quit...");
-    }
-
-    fn size(&self) -> (u32, u32) {
-        self.size
-    }
-
-    fn title(&self) -> &str {
-        self.title
     }
 }
 
-pxl8::load!("./pxl8.json");
+pxl8::run!(Pxl8 {
+    size: (1280, 720),
+    title: "pxl8",
+});
