@@ -2,10 +2,13 @@
 #![no_main]
 #![windows_subsystem = "console"]
 
-use pxl8::{Context, println};
+use pxl8::{println, Context};
 
 #[derive(Debug)]
-struct Pxl8;
+struct Pxl8 {
+    size: (u32, u32),
+    title: &'static str,
+}
 
 impl pxl8::Game for Pxl8 {
     fn init(&mut self, ctx: Context) {
@@ -23,6 +26,14 @@ impl pxl8::Game for Pxl8 {
     fn quit(&mut self, ctx: Context) {
         println!("pxl8 quit...");
     }
+
+    fn size(&self) -> (u32, u32) {
+        self.size
+    }
+
+    fn title(&self) -> &str {
+        self.title
+    }
 }
 
-pxl8::load!(Pxl8 {});
+pxl8::load!("./pxl8.json");

@@ -1,19 +1,27 @@
 #[macro_export]
 macro_rules! load {
-    ($game:ident { $($field:ident: $value:expr),* $(,)? }) => {
-        use core::ffi::{c_char, c_int};
+    ($path:literal) => {
+        use core::ffi::{c_char, c_int, CStr};
+        use core::slice;
+        use $crate::alloc::vec::Vec;
+
+        const CONFIG: &'static CStr = {
+            let c_str = concat!(include_str!($path), "\0");
+            unsafe { CStr::from_ptr(c_str.as_ptr().cast::<c_char>()) }
+        };
 
         #[no_mangle]
         unsafe extern "C" fn main(argc: c_int, argv: *mut *mut c_char) -> c_int {
-            let game_instance = $game {
-                $(
-                    $field: $value,
-                )*
-            };
+            let base_args: &[*mut c_char] =
+                slice::from_raw_parts(argv.cast_const(), argc as usize);
+
+            let mut args: Vec<*mut c_char> = base_args.to_vec();
+
+            args.push(CONFIG.as_ptr().cast_mut());
 
             let result = $crate::ffi::SDL_EnterAppMainCallbacks(
-                argc,
-                argv as *mut *mut c_char,
+                argc + 1,
+                args.as_mut_ptr(),
                 Some($crate::init),
                 Some($crate::update),
                 Some($crate::event),

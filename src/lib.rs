@@ -14,9 +14,11 @@ use ffi::{
 
 use alloc::alloc::{GlobalAlloc, Layout};
 use alloc::boxed::Box;
-use core::ffi::{c_char, c_int, c_void};
+use alloc::ffi::CString;
+use core::ffi::{c_char, c_int, c_void, CStr};
 use core::panic::PanicInfo;
 use core::ptr::{self, NonNull};
+use core::slice;
 use libc::printf;
 
 #[derive(Default)]
@@ -50,6 +52,9 @@ pub struct Context {
 }
 
 pub trait Game {
+    fn size(&self) -> (u32, u32);
+    fn title(&self) -> &str;
+
     fn init(&mut self, ctx: Context);
     fn event(&mut self, ctx: Context);
     fn frame(&mut self, ctx: Context);
@@ -63,6 +68,11 @@ pub unsafe extern "C" fn init(
     argv: *mut *mut c_char,
 ) -> SDL_AppResult {
     let window = SDL_CreateWindow(*argv, 1280, 720, SDL_WINDOW_RESIZABLE as u64);
+
+    let argc = argc as usize;
+    let args: &[*mut c_char] = slice::from_raw_parts(argv.cast_const(), argc);
+
+    println!("{:?}", CStr::from_ptr(args[argc - 1]));
 
     if window != ptr::null_mut() {
         let ctx = Box::into_raw(Box::new(Context {
