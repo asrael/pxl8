@@ -1,6 +1,5 @@
 #![no_std]
 #![no_main]
-#![windows_subsystem = "console"]
 
 use pxl8::{println, Context, Game};
 
@@ -11,19 +10,19 @@ struct Pxl8 {
 }
 
 impl Game for Pxl8 {
-    fn init(&mut self, ctx: &Context) {
+    fn init(&mut self, _ctx: &Context) {
         println!("pxl8 init...");
     }
 
-    fn event(&mut self, ctx: &Context) {
+    fn event(&mut self, _ctx: &Context) {
         println!("pxl8 event...");
     }
 
-    fn frame(&mut self, ctx: &Context) {
+    fn frame(&mut self, _ctx: &Context) {
         println!("pxl8 frame...");
     }
 
-    fn quit(&mut self, ctx: &Context) {
+    fn quit(&mut self, _ctx: &Context) {
         println!("pxl8 quit...");
     }
 }

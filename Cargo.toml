@@ -9,6 +9,9 @@ license = "zlib"
 libc = { version = "0.2", default-features = false, features = ["extra_traits"] }
 sdl3-sys = { version = "*", default-features = false, features = ["build-from-source"] }
 
+[target.wasm32-unknown-emscripten.dependencies]
+sdl3-sys = { version = "*", default-features = false, features = ["build-from-source-static"] }
+
 [profile.dev.package."*"]
 opt-level = 3
 
@@ -25,3 +28,7 @@ strip = "debuginfo"
 [profile.wasm-release]
 inherits = "release"
 opt-level = "s"
+
+# patch for now to resolve windows wasm build issue (emcmake.bat can't be found)
+[patch.crates-io]
+cmake = { git = "https://github.com/MoAlyousef/cmake-rs", branch = "master" }

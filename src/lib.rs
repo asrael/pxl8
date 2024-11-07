@@ -12,7 +12,7 @@ use alloc::alloc::{GlobalAlloc, Layout};
 use core::ffi::c_void;
 use core::panic::PanicInfo;
 use core::ptr::NonNull;
-use libc::printf;
+// use libc::printf;
 use sdl3_sys::stdinc::{SDL_free, SDL_malloc};
 use sdl3_sys::video::SDL_Window;
 
@@ -28,7 +28,7 @@ unsafe impl GlobalAlloc for SDLAlloc {
         SDL_malloc(layout.size()) as *mut u8
     }
 
-    unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
+    unsafe fn dealloc(&self, ptr: *mut u8, _layout: Layout) {
         // printf(c"freeing %d bytes\n".as_ptr(), layout.size() as c_int);
         SDL_free(ptr as *mut c_void);
     }
