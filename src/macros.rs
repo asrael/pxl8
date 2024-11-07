@@ -3,13 +3,12 @@ macro_rules! run {
     ($game:ident { $($field:ident: $value:expr),* $(,)? }) => {
         use core::ffi::{c_char, c_int, c_void};
         use core::ptr::{self, NonNull};
-        use core::slice;
         use $crate::alloc::boxed::Box;
         use $crate::alloc::ffi::CString;
-        use $crate::ffi::{
-            SDL_AppResult, SDL_CreateWindow, SDL_EnterAppMainCallbacks, SDL_Event,
-            SDL_EventType, SDL_WINDOW_RESIZABLE,
-        };
+        use $crate::sdl3_sys::events::{SDL_Event, SDL_EventType};
+        use $crate::sdl3_sys::init::SDL_AppResult;
+        use $crate::sdl3_sys::video::{SDL_CreateWindow, SDL_WINDOW_RESIZABLE};
+        use $crate::sdl3_sys::main::SDL_EnterAppMainCallbacks;
 
         static mut GAME: $game = $game {
             $(
@@ -40,10 +39,6 @@ macro_rules! run {
             argc: c_int,
             argv: *mut *mut c_char,
         ) -> SDL_AppResult {
-            // let argc = argc as usize;
-            // let args: &[*mut c_char] =
-            //     slice::from_raw_parts(argv.cast_const(), argc);
-
             let width = GAME.size.0 as c_int;
             let height = GAME.size.1 as c_int;
             let cstring = CString::new(GAME.title).unwrap();
@@ -60,9 +55,9 @@ macro_rules! run {
                 let heap_ctx = Box::into_raw(Box::new(ctx));
                 *appstate = heap_ctx as *mut c_void;
 
-                SDL_AppResult::SDL_APP_CONTINUE
+                SDL_AppResult::CONTINUE
             } else {
-                SDL_AppResult::SDL_APP_FAILURE
+                SDL_AppResult::FAILURE
             }
         }
 
@@ -70,21 +65,21 @@ macro_rules! run {
             let ctx = &*(appstate as *mut Context);
             GAME.frame(&ctx);
 
-            SDL_AppResult::SDL_APP_CONTINUE
+            SDL_AppResult::CONTINUE
         }
 
         unsafe extern "C" fn app_event(
             appstate: *mut c_void,
             event: *mut SDL_Event,
         ) -> SDL_AppResult {
-            let event_type = (*event).type_.into();
+            let event_type = core::mem::transmute((*event).r#type);
 
             let ctx = &*(appstate as *const Context);
             GAME.event(&ctx);
 
             match event_type {
-                SDL_EventType::SDL_EVENT_QUIT => SDL_AppResult::SDL_APP_SUCCESS,
-                _ => SDL_AppResult::SDL_APP_CONTINUE,
+                SDL_EventType::QUIT => SDL_AppResult::SUCCESS,
+                _ => SDL_AppResult::CONTINUE,
             }
         }
 
@@ -100,9 +95,13 @@ macro_rules! run {
 #[macro_export]
 macro_rules! println {
     ($($arg:tt)*) => {{
-        let fmt = $crate::alloc::format!($($arg)*);
-        let c_string = $crate::alloc::ffi::CString::new(fmt).unwrap();
+        use $crate::alloc::format;
+        use $crate::alloc::ffi::CString;
+        use $crate::sdl3_sys::log::SDL_Log;
 
-        unsafe { $crate::ffi::SDL_Log(c_string.as_ptr()); }
+        let fmt = format!($($arg)*);
+        let c_string = CString::new(fmt).unwrap();
+
+        unsafe { SDL_Log(c_string.as_ptr()); }
     }}
 }

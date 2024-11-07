@@ -6,14 +6,8 @@ authors = ["asrael <asrael@pxl8.org>"]
 license = "zlib"
 
 [dependencies]
-libc = "0.2"
-
-[build-dependencies]
-bindgen = { version = "0.70", optional = true }
-
-[features]
-default = []
-gen-ffi = ["bindgen"]
+libc = { version = "0.2", default-features = false, features = ["extra_traits"] }
+sdl3-sys = { version = "*", default-features = false, features = ["build-from-source"] }
 
 [profile.dev.package."*"]
 opt-level = 3

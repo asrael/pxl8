@@ -3,20 +3,24 @@
 #![no_std]
 
 pub extern crate alloc;
+pub use sdl3_sys;
 
-pub mod ffi;
 mod macros;
 
-use ffi::{SDL_EventType, SDL_Window, SDL_free, SDL_malloc};
-
 use alloc::alloc::{GlobalAlloc, Layout};
-use core::ffi::{c_char, c_int, c_void, CStr};
+// use core::ffi::c_int;
+use core::ffi::c_void;
 use core::panic::PanicInfo;
 use core::ptr::NonNull;
 use libc::printf;
+use sdl3_sys::stdinc::{SDL_free, SDL_malloc};
+use sdl3_sys::video::SDL_Window;
+
+#[global_allocator]
+static SDL_ALLOC: SDLAlloc = SDLAlloc;
 
 #[derive(Default)]
-pub(crate) struct SDLAlloc;
+struct SDLAlloc;
 
 unsafe impl GlobalAlloc for SDLAlloc {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
@@ -30,9 +34,6 @@ unsafe impl GlobalAlloc for SDLAlloc {
     }
 }
 
-#[global_allocator]
-static SDL_ALLOC: SDLAlloc = SDLAlloc;
-
 #[derive(Debug)]
 pub struct Context {
     pub window: NonNull<SDL_Window>,
@@ -43,12 +44,6 @@ pub trait Game {
     fn event(&mut self, ctx: &Context);
     fn frame(&mut self, ctx: &Context);
     fn quit(&mut self, ctx: &Context);
-}
-
-impl core::convert::From<ffi::Uint32> for SDL_EventType {
-    fn from(value: ffi::Uint32) -> Self {
-        unsafe { core::mem::transmute(value) }
-    }
 }
 
 #[lang = "eh_personality"]

@@ -1,2 +1,0 @@
--std=c99
--Iext/SDL3/include
