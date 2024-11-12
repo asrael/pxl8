@@ -2,19 +2,31 @@
 #![feature(lang_items)]
 #![no_std]
 
+mod error;
+mod gpu;
+mod macros;
+mod result;
+
 pub extern crate alloc;
+pub use alloc::boxed::Box;
 pub use sdl3_sys;
 
-mod macros;
+pub use error::Error;
+pub use gpu::Gpu;
+pub use result::Result;
 
 use alloc::alloc::{GlobalAlloc, Layout};
-// use core::ffi::c_int;
+
+use core::ffi::c_int;
 use core::ffi::c_void;
 use core::panic::PanicInfo;
 use core::ptr::NonNull;
-// use libc::printf;
+
+use libc::printf;
 use sdl3_sys::stdinc::{SDL_free, SDL_malloc};
 use sdl3_sys::video::SDL_Window;
+
+pub(crate) use error::get_sdl_error;
 
 #[global_allocator]
 static SDL_ALLOC: SDLAlloc = SDLAlloc;
@@ -28,7 +40,7 @@ unsafe impl GlobalAlloc for SDLAlloc {
         SDL_malloc(layout.size()) as *mut u8
     }
 
-    unsafe fn dealloc(&self, ptr: *mut u8, _layout: Layout) {
+    unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
         // printf(c"freeing %d bytes\n".as_ptr(), layout.size() as c_int);
         SDL_free(ptr as *mut c_void);
     }
@@ -36,6 +48,7 @@ unsafe impl GlobalAlloc for SDLAlloc {
 
 #[derive(Debug)]
 pub struct Context {
+    pub gpu: Gpu,
     pub window: NonNull<SDL_Window>,
 }
 

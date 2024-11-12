@@ -9,6 +9,7 @@ macro_rules! run {
         use $crate::sdl3_sys::init::SDL_AppResult;
         use $crate::sdl3_sys::video::{SDL_CreateWindow, SDL_WINDOW_RESIZABLE};
         use $crate::sdl3_sys::main::SDL_EnterAppMainCallbacks;
+        use $crate::Gpu;
 
         static mut GAME: $game = $game {
             $(
@@ -47,6 +48,7 @@ macro_rules! run {
                 SDL_CreateWindow(title.as_ptr(), width, height, SDL_WINDOW_RESIZABLE as u64);
             if window != ptr::null_mut() {
                 let ctx = Context {
+                    gpu: Gpu::new(window).unwrap(),
                     window: NonNull::new_unchecked(window),
                 };
 

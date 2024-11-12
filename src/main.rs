@@ -10,17 +10,12 @@ struct Pxl8 {
 }
 
 impl Game for Pxl8 {
-    fn init(&mut self, _ctx: &Context) {
+    fn init(&mut self, ctx: &Context) {
         println!("pxl8 init...");
     }
 
-    fn event(&mut self, _ctx: &Context) {
-        println!("pxl8 event...");
-    }
-
-    fn frame(&mut self, _ctx: &Context) {
-        println!("pxl8 frame...");
-    }
+    fn event(&mut self, _ctx: &Context) {}
+    fn frame(&mut self, _ctx: &Context) {}
 
     fn quit(&mut self, _ctx: &Context) {
         println!("pxl8 quit...");
