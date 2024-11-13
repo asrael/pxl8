@@ -42,20 +42,20 @@ macro_rules! run {
         ) -> SDL_AppResult {
             let width = GAME.size.0 as c_int;
             let height = GAME.size.1 as c_int;
-            let cstring = CString::new(GAME.title).unwrap();
-            let title = cstring.as_c_str();
-            let window =
-                SDL_CreateWindow(title.as_ptr(), width, height, SDL_WINDOW_RESIZABLE as u64);
+            let title = CString::new(GAME.title).unwrap();
+            let window = SDL_CreateWindow(
+                title.as_ptr(),
+                width, height,
+                SDL_WINDOW_RESIZABLE as u64,
+            );
+
             if window != ptr::null_mut() {
-                let ctx = Context {
-                    gpu: Gpu::new(window).unwrap(),
-                    window: NonNull::new_unchecked(window),
-                };
+                let gpu = Gpu::new(window).expect("failed to create gpu");
+                let pxl8 = Pxl8::new(gpu, NonNull::new_unchecked(window));
 
-                GAME.init(&ctx);
+                GAME.init(&pxl8);
 
-                let heap_ctx = Box::into_raw(Box::new(ctx));
-                *appstate = heap_ctx as *mut c_void;
+                *appstate = Box::into_raw(Box::new(pxl8)) as *mut c_void;
 
                 SDL_AppResult::CONTINUE
             } else {
@@ -64,8 +64,8 @@ macro_rules! run {
         }
 
         unsafe extern "C" fn app_iterate(appstate: *mut c_void) -> SDL_AppResult {
-            let ctx = &*(appstate as *mut Context);
-            GAME.frame(&ctx);
+            let pxl8 = &*(appstate as *mut Pxl8);
+            GAME.frame(&pxl8);
 
             SDL_AppResult::CONTINUE
         }
@@ -76,8 +76,8 @@ macro_rules! run {
         ) -> SDL_AppResult {
             let event_type = core::mem::transmute((*event).r#type);
 
-            let ctx = &*(appstate as *const Context);
-            GAME.event(&ctx);
+            let pxl8 = &*(appstate as *const Pxl8);
+            GAME.event(&pxl8);
 
             match event_type {
                 SDL_EventType::QUIT => SDL_AppResult::SUCCESS,
@@ -86,10 +86,10 @@ macro_rules! run {
         }
 
         unsafe extern "C" fn app_quit(appstate: *mut c_void, _result: SDL_AppResult) {
-            let ctx = &*(appstate as *mut Context);
-            GAME.quit(&ctx);
+            let pxl8 = &*(appstate as *mut Pxl8);
+            GAME.quit(&pxl8);
 
-            let _ = Box::from_raw(appstate as *mut Context);
+            let _ = Box::from_raw(appstate as *mut Pxl8);
         }
     };
 }

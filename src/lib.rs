@@ -3,17 +3,10 @@
 #![no_std]
 
 mod error;
+//mod event;
 mod gpu;
 mod macros;
 mod result;
-
-pub extern crate alloc;
-pub use alloc::boxed::Box;
-pub use sdl3_sys;
-
-pub use error::Error;
-pub use gpu::Gpu;
-pub use result::Result;
 
 use alloc::alloc::{GlobalAlloc, Layout};
 
@@ -27,6 +20,16 @@ use sdl3_sys::stdinc::{SDL_free, SDL_malloc};
 use sdl3_sys::video::SDL_Window;
 
 pub(crate) use error::get_sdl_error;
+
+pub type Window = NonNull<SDL_Window>;
+
+pub extern crate alloc;
+pub use alloc::boxed::Box;
+pub use sdl3_sys;
+
+pub use error::Error;
+pub use gpu::Gpu;
+pub use result::Result;
 
 #[global_allocator]
 static SDL_ALLOC: SDLAlloc = SDLAlloc;
@@ -47,16 +50,22 @@ unsafe impl GlobalAlloc for SDLAlloc {
 }
 
 #[derive(Debug)]
-pub struct Context {
+pub struct Pxl8 {
     pub gpu: Gpu,
-    pub window: NonNull<SDL_Window>,
+    window: Window,
+}
+
+impl Pxl8 {
+    pub fn new(gpu: Gpu, window: Window) -> Self {
+        Pxl8 { gpu, window }
+    }
 }
 
 pub trait Game {
-    fn init(&mut self, ctx: &Context);
-    fn event(&mut self, ctx: &Context);
-    fn frame(&mut self, ctx: &Context);
-    fn quit(&mut self, ctx: &Context);
+    fn init(&mut self, pxl8: &Pxl8);
+    fn event(&mut self, pxl8: &Pxl8);
+    fn frame(&mut self, pxl8: &Pxl8);
+    fn quit(&mut self, pxl8: &Pxl8);
 }
 
 #[lang = "eh_personality"]
