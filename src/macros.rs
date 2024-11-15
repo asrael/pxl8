@@ -9,13 +9,7 @@ macro_rules! run {
         use $crate::sdl3_sys::init::SDL_AppResult;
         use $crate::sdl3_sys::video::{SDL_CreateWindow, SDL_WINDOW_RESIZABLE};
         use $crate::sdl3_sys::main::SDL_EnterAppMainCallbacks;
-        use $crate::{Event, Gpu, Key, KeyData};
-
-        static mut GAME: $game = $game {
-            $(
-                $field: $value,
-            )*
-        };
+        use $crate::Gpu;
 
         #[no_mangle]
         unsafe extern "C" fn main(argc: c_int, argv: *mut *mut c_char) -> c_int {
@@ -40,9 +34,15 @@ macro_rules! run {
             argc: c_int,
             argv: *mut *mut c_char,
         ) -> SDL_AppResult {
-            let width = GAME.size.0 as c_int;
-            let height = GAME.size.1 as c_int;
-            let title = CString::new(GAME.title).unwrap();
+            let game = $game {
+                $(
+                    $field: $value,
+                )*
+            };
+
+            let width = game.size.0 as c_int;
+            let height = game.size.1 as c_int;
+            let title = CString::new(game.title).unwrap();
             let window = SDL_CreateWindow(
                 title.as_ptr(),
                 width, height,
@@ -51,9 +51,9 @@ macro_rules! run {
 
             if window != ptr::null_mut() {
                 let gpu = Gpu::new(window).expect("failed to create gpu");
-                let pxl8 = Pxl8::new(gpu, NonNull::new_unchecked(window));
+                let pxl8 = Pxl8::new(game, gpu, NonNull::new_unchecked(window));
 
-                GAME.init(&pxl8);
+                pxl8.init();
 
                 *appstate = Box::into_raw(Box::new(pxl8)) as *mut c_void;
 
@@ -64,8 +64,9 @@ macro_rules! run {
         }
 
         unsafe extern "C" fn app_iterate(appstate: *mut c_void) -> SDL_AppResult {
-            let pxl8 = &*(appstate as *mut Pxl8);
-            GAME.frame(&pxl8);
+            let pxl8 = &*(appstate as *const Pxl8<$game>);
+
+            pxl8.frame();
 
             SDL_AppResult::CONTINUE
         }
@@ -75,43 +76,23 @@ macro_rules! run {
             sdl_event: *mut SDL_Event,
         ) -> SDL_AppResult {
             let sdl_event = *sdl_event;
-            let mut event = None;
-            let event_type = core::mem::transmute(sdl_event.r#type);
+            let sdl_event_type = core::mem::transmute(sdl_event.r#type);
+            let pxl8 = &*(appstate as *const Pxl8<$game>);
 
-            match event_type {
-                SDL_EventType::KEY_DOWN => {
-                    event = Some(Event::KeyDown(KeyData {
-                        key: Key::from_scancode(sdl_event.key.scancode),
-                        repeat: sdl_event.key.repeat,
-                    }));
+            pxl8.event(sdl_event_type, sdl_event);
 
-                }
-                SDL_EventType::KEY_UP => {
-                    event = Some(Event::KeyUp(KeyData {
-                        key: Key::from_scancode(sdl_event.key.scancode),
-                        repeat: false,
-                    }));
-                }
-
-                _=> {}
-            }
-
-            if let Some(event) = event {
-                let pxl8 = &*(appstate as *const Pxl8);
-                GAME.event(&pxl8, event);
-            }
-
-            match event_type {
+            match sdl_event_type {
                 SDL_EventType::QUIT => SDL_AppResult::SUCCESS,
                 _ => SDL_AppResult::CONTINUE,
             }
         }
 
         unsafe extern "C" fn app_quit(appstate: *mut c_void, _result: SDL_AppResult) {
-            let pxl8 = &*(appstate as *mut Pxl8);
-            GAME.quit(&pxl8);
+            let pxl8 = &*(appstate as *const Pxl8<$game>);
 
-            let _ = Box::from_raw(appstate as *mut Pxl8);
+            pxl8.quit();
+
+            let _ = Box::from_raw(appstate as *mut Pxl8<$game>);
         }
     };
 }

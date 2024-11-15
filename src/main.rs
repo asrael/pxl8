@@ -1,7 +1,7 @@
 #![no_main]
 #![no_std]
 
-use pxl8::{println, Game, Pxl8};
+use pxl8::{println, Event, Game, Pxl8};
 
 #[derive(Debug)]
 struct Editor {
@@ -10,22 +10,13 @@ struct Editor {
 }
 
 impl Game for Editor {
-    fn init(&mut self, _pxl8: &Pxl8) {
-        println!("pxl8 init...");
-    }
-
-    fn event(&mut self, _pxl8: &Pxl8, event: Event) {
-        println!("pxl8 event... {:?}", event);
-    }
-
-    fn frame(&mut self, _pxl8: &Pxl8) {}
-
-    fn quit(&mut self, _pxl8: &Pxl8) {
-        println!("pxl8 quit...");
-    }
+    fn init(&self, _pxl8: &Pxl8<Editor>) {}
+    fn event(&self, _pxl8: &Pxl8<Editor>, event: Event) {}
+    fn frame(&self, _pxl8: &Pxl8<Editor>) {}
+    fn quit(&self, _pxl8: &Pxl8<Editor>) {}
 }
 
 pxl8::run!(Editor {
     size: (1280, 720),
-    title: "pxl8 editor",
+    title: "pxl8",
 });

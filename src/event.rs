@@ -2,13 +2,13 @@ use sdl3_sys::scancode::SDL_Scancode;
 
 #[derive(Debug, Clone, Copy)]
 pub enum Event {
-    KeyDown(KeyData),
-    KeyUp(KeyData),
-    MouseDown(MouseData),
-    MouseUp(MouseData),
-    MouseWheel(MouseData),
-    GamepadDown(GamepadData),
-    GamepadUp(GamepadData),
+    KeyDown(KeyEvent),
+    KeyUp(KeyEvent),
+    MouseDown(MouseButton),
+    MouseUp(MouseButton),
+    MouseWheel(MouseScroll),
+    GamepadDown(GamepadButton),
+    GamepadUp(GamepadButton),
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -41,12 +41,6 @@ pub enum GamepadButton {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct GamepadData {
-    pub axis: GamepadAxis,
-    pub button: GamepadButton,
-}
-
-#[derive(Debug, Clone, Copy)]
 pub enum Key {
     W,
     A,
@@ -71,7 +65,7 @@ impl Key {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct KeyData {
+pub struct KeyEvent {
     pub key: Key,
     pub repeat: bool,
 }
@@ -87,10 +81,4 @@ pub enum MouseButton {
 pub struct MouseScroll {
     pub dx: i32,
     pub dy: i32,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct MouseData {
-    pub button: MouseButton,
-    pub scroll: MouseScroll,
 }
