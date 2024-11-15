@@ -3,7 +3,7 @@
 #![no_std]
 
 mod error;
-//mod event;
+mod event;
 mod gpu;
 mod macros;
 mod result;
@@ -28,6 +28,7 @@ pub use alloc::boxed::Box;
 pub use sdl3_sys;
 
 pub use error::Error;
+pub use event::{Event, Key, KeyData};
 pub use gpu::Gpu;
 pub use result::Result;
 
@@ -63,7 +64,7 @@ impl Pxl8 {
 
 pub trait Game {
     fn init(&mut self, pxl8: &Pxl8);
-    fn event(&mut self, pxl8: &Pxl8);
+    fn event(&mut self, pxl8: &Pxl8, event: Event);
     fn frame(&mut self, pxl8: &Pxl8);
     fn quit(&mut self, pxl8: &Pxl8);
 }

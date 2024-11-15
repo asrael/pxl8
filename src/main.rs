@@ -14,8 +14,8 @@ impl Game for Editor {
         println!("pxl8 init...");
     }
 
-    fn event(&mut self, _pxl8: &Pxl8) {
-        println!("pxl8 event...");
+    fn event(&mut self, _pxl8: &Pxl8, event: Event) {
+        println!("pxl8 event... {:?}", event);
     }
 
     fn frame(&mut self, _pxl8: &Pxl8) {}

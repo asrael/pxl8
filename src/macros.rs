@@ -9,7 +9,7 @@ macro_rules! run {
         use $crate::sdl3_sys::init::SDL_AppResult;
         use $crate::sdl3_sys::video::{SDL_CreateWindow, SDL_WINDOW_RESIZABLE};
         use $crate::sdl3_sys::main::SDL_EnterAppMainCallbacks;
-        use $crate::Gpu;
+        use $crate::{Event, Gpu, Key, KeyData};
 
         static mut GAME: $game = $game {
             $(
@@ -72,12 +72,34 @@ macro_rules! run {
 
         unsafe extern "C" fn app_event(
             appstate: *mut c_void,
-            event: *mut SDL_Event,
+            sdl_event: *mut SDL_Event,
         ) -> SDL_AppResult {
-            let event_type = core::mem::transmute((*event).r#type);
+            let sdl_event = *sdl_event;
+            let mut event = None;
+            let event_type = core::mem::transmute(sdl_event.r#type);
 
-            let pxl8 = &*(appstate as *const Pxl8);
-            GAME.event(&pxl8);
+            match event_type {
+                SDL_EventType::KEY_DOWN => {
+                    event = Some(Event::KeyDown(KeyData {
+                        key: Key::from_scancode(sdl_event.key.scancode),
+                        repeat: sdl_event.key.repeat,
+                    }));
+
+                }
+                SDL_EventType::KEY_UP => {
+                    event = Some(Event::KeyUp(KeyData {
+                        key: Key::from_scancode(sdl_event.key.scancode),
+                        repeat: false,
+                    }));
+                }
+
+                _=> {}
+            }
+
+            if let Some(event) = event {
+                let pxl8 = &*(appstate as *const Pxl8);
+                GAME.event(&pxl8, event);
+            }
 
             match event_type {
                 SDL_EventType::QUIT => SDL_AppResult::SUCCESS,
