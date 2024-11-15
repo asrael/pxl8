@@ -7,7 +7,6 @@ mod error;
 mod event;
 mod gpu;
 mod macros;
-mod result;
 
 use core::ffi::c_int;
 use core::ffi::c_void;
@@ -22,23 +21,19 @@ use sdl3_sys::video::{SDL_CreateWindow, SDL_Window, SDL_WINDOW_RESIZABLE};
 
 pub(crate) use error::get_sdl_error;
 
-pub type Window = NonNull<SDL_Window>;
-
-pub use sdl3_sys;
-
 pub use alloc::*;
-pub use error::Error;
+pub use error::{Error, Result};
 pub use event::{
     Event, GamepadAxis, GamepadButton, Key, KeyEvent, MouseButton, MouseScroll,
 };
 pub use gpu::Gpu;
-pub use result::Result;
+pub use sdl3_sys;
 
 #[derive(Debug)]
 pub struct Pxl8<G: Game> {
     pub gpu: Gpu,
     game: G,
-    window: Window,
+    window: NonNull<SDL_Window>,
 }
 
 impl<G: Game> Pxl8<G> {

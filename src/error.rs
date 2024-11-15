@@ -5,6 +5,7 @@ use sdl3_sys::error::SDL_GetError;
 use crate::Box;
 
 pub type Error = Box<dyn core::error::Error>;
+pub type Result<T> = core::result::Result<T, Error>;
 
 pub unsafe fn get_sdl_error() -> Error {
     CStr::from_ptr(SDL_GetError()).to_string_lossy().into()
