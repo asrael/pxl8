@@ -2,56 +2,37 @@
 #![feature(lang_items)]
 #![no_std]
 
+mod alloc;
 mod error;
 mod event;
 mod gpu;
 mod macros;
 mod result;
 
-use alloc::alloc::{GlobalAlloc, Layout};
-
 use core::ffi::c_int;
 use core::ffi::c_void;
 use core::panic::PanicInfo;
-use core::ptr::NonNull;
+use core::ptr::{self, NonNull};
 
+use alloc::ffi::CString;
 use libc::printf;
 use sdl3_sys::events::{SDL_Event, SDL_EventType};
-use sdl3_sys::stdinc::{SDL_free, SDL_malloc};
-use sdl3_sys::video::SDL_Window;
+use sdl3_sys::log::SDL_LOG_CATEGORY_ERROR;
+use sdl3_sys::video::{SDL_CreateWindow, SDL_Window, SDL_WINDOW_RESIZABLE};
 
 pub(crate) use error::get_sdl_error;
 
 pub type Window = NonNull<SDL_Window>;
 
-pub extern crate alloc;
-pub use alloc::boxed::Box;
 pub use sdl3_sys;
 
+pub use alloc::*;
 pub use error::Error;
 pub use event::{
     Event, GamepadAxis, GamepadButton, Key, KeyEvent, MouseButton, MouseScroll,
 };
 pub use gpu::Gpu;
 pub use result::Result;
-
-#[global_allocator]
-static SDL_ALLOC: SDLAlloc = SDLAlloc;
-
-#[derive(Default)]
-struct SDLAlloc;
-
-unsafe impl GlobalAlloc for SDLAlloc {
-    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        // printf(c"allocating %d bytes\n".as_ptr(), layout.size() as c_int);
-        SDL_malloc(layout.size()) as *mut u8
-    }
-
-    unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
-        // printf(c"freeing %d bytes\n".as_ptr(), layout.size() as c_int);
-        SDL_free(ptr as *mut c_void);
-    }
-}
 
 #[derive(Debug)]
 pub struct Pxl8<G: Game> {
@@ -61,8 +42,25 @@ pub struct Pxl8<G: Game> {
 }
 
 impl<G: Game> Pxl8<G> {
-    pub fn new(game: G, gpu: Gpu, window: Window) -> Self {
-        Pxl8 { game, gpu, window }
+    pub unsafe fn new(game: G) -> Result<Self> {
+        let title = CString::new(game.title()).unwrap();
+        let (width, height) = game.size();
+
+        let window = SDL_CreateWindow(
+            title.as_ptr(),
+            width as c_int,
+            height as c_int,
+            SDL_WINDOW_RESIZABLE as u64,
+        );
+
+        let gpu = Gpu::new(window)?;
+
+        if window != ptr::null_mut() {
+            let window = NonNull::new_unchecked(window);
+            Ok(Pxl8 { game, gpu, window })
+        } else {
+            Err(get_sdl_error())
+        }
     }
 
     pub fn init(&self) {
@@ -121,6 +119,8 @@ pub trait Game: Sized {
     fn event(&self, pxl8: &Pxl8<Self>, event: Event);
     fn frame(&self, pxl8: &Pxl8<Self>);
     fn quit(&self, pxl8: &Pxl8<Self>);
+    fn size(&self) -> (u32, u32);
+    fn title(&self) -> &str;
 }
 
 #[lang = "eh_personality"]
