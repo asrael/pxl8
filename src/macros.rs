@@ -7,7 +7,7 @@ macro_rules! run {
         use $crate::sdl3_sys::events::{SDL_Event, SDL_EventType};
         use $crate::sdl3_sys::init::SDL_AppResult;
         use $crate::sdl3_sys::main::SDL_EnterAppMainCallbacks;
-        use $crate::{Box, eprintln};
+        use $crate::{Box, eprintln, Pxl8};
 
         #[no_mangle]
         unsafe extern "C" fn main(argc: c_int, argv: *mut *mut c_char) -> c_int {

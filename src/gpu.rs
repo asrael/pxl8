@@ -3,9 +3,10 @@ use core::ptr::{self, NonNull};
 use sdl3_sys::gpu::*;
 use sdl3_sys::video::SDL_Window;
 
-use crate::{get_sdl_error, Result};
+use crate::{Error, Result};
 
-#[derive(Clone, Copy, Debug)]
+#[allow(dead_code)]
+#[derive(Debug)]
 pub struct Gpu {
     device: NonNull<SDL_GPUDevice>,
 }
@@ -20,7 +21,7 @@ impl Gpu {
                 device: NonNull::new_unchecked(device),
             })
         } else {
-            Err(get_sdl_error())
+            Err(Error::from_sdl())
         }
     }
 }

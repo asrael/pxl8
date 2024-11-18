@@ -9,17 +9,12 @@ mod gpu;
 mod macros;
 
 use core::ffi::c_int;
-use core::ffi::c_void;
 use core::panic::PanicInfo;
 use core::ptr::{self, NonNull};
 
 use alloc::ffi::CString;
-use libc::printf;
 use sdl3_sys::events::{SDL_Event, SDL_EventType};
-use sdl3_sys::log::SDL_LOG_CATEGORY_ERROR;
 use sdl3_sys::video::{SDL_CreateWindow, SDL_Window, SDL_WINDOW_RESIZABLE};
-
-pub(crate) use error::get_sdl_error;
 
 pub use alloc::*;
 pub use error::{Error, Result};
@@ -29,11 +24,13 @@ pub use event::{
 pub use gpu::Gpu;
 pub use sdl3_sys;
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct Pxl8<G: Game> {
-    pub gpu: Gpu,
     game: G,
     window: NonNull<SDL_Window>,
+
+    pub gpu: Gpu,
 }
 
 impl<G: Game> Pxl8<G> {
@@ -54,13 +51,11 @@ impl<G: Game> Pxl8<G> {
             let window = NonNull::new_unchecked(window);
             Ok(Pxl8 { game, gpu, window })
         } else {
-            Err(get_sdl_error())
+            Err(Error::from_sdl())
         }
     }
 
     pub fn init(&self) {
-        println!("pxl8 init...");
-
         self.game.init(&self);
     }
 
@@ -99,13 +94,11 @@ impl<G: Game> Pxl8<G> {
 
         if let Some(event) = event {
             self.game.event(&self, event);
-            println!("pxl8 event... {:?}", event);
         }
     }
 
     pub fn quit(&self) {
         self.game.quit(&self);
-        println!("pxl8 quit...");
     }
 }
 
