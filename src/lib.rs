@@ -1,15 +1,17 @@
 #![allow(internal_features)]
 #![feature(lang_items)]
-#![no_std]
+#![cfg_attr(not(test), no_std)]
 
 mod alloc;
+mod anim;
+mod audio;
 mod error;
 mod event;
 mod gpu;
 mod macros;
+mod sprite;
 
 use core::ffi::c_int;
-use core::panic::PanicInfo;
 use core::ptr::{self, NonNull};
 
 use alloc::ffi::CString;
@@ -81,13 +83,8 @@ impl<G: Game> Pxl8<G> {
                 }));
             },
 
-            SDL_EventType::MOUSE_BUTTON_DOWN => {
-                // event = Some(Event::MouseDown(MouseButton::from_sdl()));
-            }
-
-            SDL_EventType::MOUSE_BUTTON_UP => {
-                // event = Some(Event::MouseUp(MouseButton::from_sdl()));
-            }
+            SDL_EventType::MOUSE_BUTTON_DOWN => {}
+            SDL_EventType::MOUSE_BUTTON_UP => {}
 
             _ => {}
         }
@@ -111,10 +108,15 @@ pub trait Game: Sized {
     fn title(&self) -> &str;
 }
 
-#[lang = "eh_personality"]
-extern "C" fn eh_personality() {}
+#[cfg(not(test))]
+mod lang_items {
+    use core::panic::PanicInfo;
 
-#[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
-    loop {}
+    #[lang = "eh_personality"]
+    extern "C" fn eh_personality() {}
+
+    #[panic_handler]
+    fn panic(_info: &PanicInfo) -> ! {
+        loop {}
+    }
 }

@@ -1,3 +1,5 @@
+mod texture;
+
 use core::ptr::{self, NonNull};
 
 use sdl3_sys::gpu::*;

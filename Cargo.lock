@@ -21,9 +21,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.162"
+version = "0.2.164"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18d287de67fe55fd7e1581fe933d965a5a9477b38e949cfa9f8574ef01506398"
+checksum = "433bfe06b8c75da9b2e3fbea6e5329ff87748f0b144ef75306e674c3f6f7c13f"
 
 [[package]]
 name = "pxl8"
@@ -47,9 +47,9 @@ checksum = "6cd923f539b7738e631de0c729f548da2d764cd45c3a480aaab65296dfa66e1f"
 
 [[package]]
 name = "sdl3-sys"
-version = "0.1.2+SDL3-preview-3.1.6"
+version = "0.1.3+SDL3-preview-3.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "48501d90bf219bf3126b26155c04834af300088432f98c6985aa8ad3a2441baa"
+checksum = "5c47498b18bcdb59a4f59af2923b3c5b4c921482e6e3579a2ab19a0e2c813f56"
 dependencies = [
  "cmake",
  "rpkg-config",
