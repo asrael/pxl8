@@ -10,6 +10,6 @@ impl UVec2 {
     }
 
     pub fn zero() -> Self {
-        Self::new(0, 0)
+        Self::default()
     }
 }

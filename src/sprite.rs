@@ -15,7 +15,7 @@ pub struct SpriteSheet {
 impl SpriteSheet {
     pub fn new(max_width: u16, max_height: u16) -> Self {
         Self {
-            coordinates: vec![UVec2::zero(); max_width as usize],
+            coordinates: vec![UVec2::zero(); 2 * max_width as usize],
             max_width,
             max_height,
             skyline_count: 1,
@@ -25,11 +25,7 @@ impl SpriteSheet {
     pub fn add(&mut self, size: UVec2, pos: &mut UVec2) -> bool {
         let [width, height] = [size.x, size.y];
 
-        if width % 2 != 0
-            || height % 2 != 0
-            || width > self.max_width
-            || height > self.max_height
-        {
+        if width == 0 || height == 0 {
             return false;
         }
 
@@ -38,7 +34,7 @@ impl SpriteSheet {
         let mut best_x = u16::MAX;
         let mut best_y = u16::MAX;
 
-        for i in 0..self.coordinates.len() {
+        for i in 0..self.skyline_count as usize {
             let [x, mut y] = [self.coordinates[i].x, self.coordinates[i].y];
 
             if width > self.max_width - x {
@@ -50,25 +46,28 @@ impl SpriteSheet {
             }
 
             let x_max = x + width;
+            let mut j = i + 1;
 
-            for j in 0..self.skyline_count {
-                if x_max <= self.coordinates[j as usize].x {
+            while j < self.skyline_count as usize {
+                if x_max <= self.coordinates[j].x {
                     break;
                 }
 
-                if y < self.coordinates[j as usize].y {
-                    y = self.coordinates[j as usize].y;
+                if y < self.coordinates[j].y {
+                    y = self.coordinates[j].y;
                 }
 
-                if y >= best_y || height > self.max_height {
-                    continue;
-                }
-
-                best = i as u16;
-                next_best = j;
-                best_x = x;
-                best_y = y;
+                j += 1;
             }
+
+            if y >= best_y || height > self.max_height - y {
+                continue;
+            }
+
+            best = i as u16;
+            next_best = j as u16;
+            best_x = x;
+            best_y = y;
         }
 
         if best == u16::MAX {
@@ -100,6 +99,7 @@ impl SpriteSheet {
                 idx -= 1;
                 idx2 -= 1;
             }
+            self.skyline_count = self.skyline_count + (inserted - removed);
         } else if inserted < removed {
             let mut idx = next_best as usize;
             let mut idx2 = idx - (removed - inserted) as usize;
@@ -107,8 +107,9 @@ impl SpriteSheet {
             while idx < self.skyline_count as usize {
                 self.coordinates.swap(idx, idx2);
                 idx += 1;
-                idx2 += 2;
+                idx2 += 1;
             }
+            self.skyline_count = self.skyline_count - (removed - inserted);
         }
 
         self.coordinates[best as usize] = new_tl;
@@ -121,5 +122,69 @@ impl SpriteSheet {
         pos.y = best_y;
 
         true
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::math::UVec2;
+    use crate::SpriteSheet;
+
+    #[test]
+    fn test_spritesheet_add() {
+        let mut sheet = SpriteSheet::new(4, 4);
+        let mut pos = UVec2::default();
+        let mut size = UVec2::default();
+        let mut success;
+
+        size.x = 1;
+        size.y = 1;
+        success = sheet.add(size, &mut pos);
+        assert!(pos.x == 0);
+        assert!(pos.y == 0);
+        assert!(success);
+
+        size.x = 2;
+        size.y = 2;
+        success = sheet.add(size, &mut pos);
+        assert!(pos.x == 1);
+        assert!(pos.y == 0);
+        assert!(success);
+
+        size.x = 4;
+        size.y = 1;
+        success = sheet.add(size, &mut pos);
+        assert!(pos.x == 0);
+        assert!(pos.y == 2);
+        assert!(success);
+
+        size.x = 1;
+        size.y = 2;
+        success = sheet.add(size, &mut pos);
+        assert!(!success);
+
+        size.x = 3;
+        size.y = 1;
+        success = sheet.add(size, &mut pos);
+        assert!(pos.x == 0);
+        assert!(pos.y == 3);
+        assert!(success);
+
+        size.x = 2;
+        size.y = 1;
+        success = sheet.add(size, &mut pos);
+        assert!(!success);
+
+        size.x = 1;
+        size.y = 1;
+        success = sheet.add(size, &mut pos);
+        assert!(pos.x == 3);
+        assert!(pos.y == 3);
+        assert!(success);
+
+        size.x = 1;
+        size.y = 1;
+        success = sheet.add(size, &mut pos);
+        assert!(!success);
     }
 }
