@@ -9,52 +9,37 @@ mod error;
 mod event;
 mod gpu;
 mod macros;
+pub mod math;
 mod sprite;
+pub mod ui;
+mod window;
 
-use core::ffi::c_int;
-use core::ptr::{self, NonNull};
-
-use alloc::ffi::CString;
 use sdl3_sys::events::{SDL_Event, SDL_EventType};
-use sdl3_sys::video::{SDL_CreateWindow, SDL_Window, SDL_WINDOW_RESIZABLE};
 
 pub use alloc::*;
 pub use error::{Error, Result};
-pub use event::{
-    Event, GamepadAxis, GamepadButton, Key, KeyEvent, MouseButton, MouseScroll,
-};
-pub use gpu::Gpu;
+pub use event::*;
+pub use gpu::{Gpu, Texture};
 pub use sdl3_sys;
+pub use sprite::*;
+pub use window::Window;
 
 #[allow(dead_code)]
 #[derive(Debug)]
 pub struct Pxl8<G: Game> {
     game: G,
-    window: NonNull<SDL_Window>,
+    window: Window,
 
     pub gpu: Gpu,
 }
 
 impl<G: Game> Pxl8<G> {
-    pub unsafe fn new(game: G) -> Result<Self> {
-        let title = CString::new(game.title()).unwrap();
+    pub fn new(game: G) -> Result<Self> {
         let (width, height) = game.size();
+        let window = Window::new(game.title(), width, height)?;
+        let gpu = Gpu::new(&window)?;
 
-        let window = SDL_CreateWindow(
-            title.as_ptr(),
-            width as c_int,
-            height as c_int,
-            SDL_WINDOW_RESIZABLE as u64,
-        );
-
-        let gpu = Gpu::new(window)?;
-
-        if window != ptr::null_mut() {
-            let window = NonNull::new_unchecked(window);
-            Ok(Pxl8 { game, gpu, window })
-        } else {
-            Err(Error::from_sdl())
-        }
+        Ok(Self { game, gpu, window })
     }
 
     pub fn init(&self) {

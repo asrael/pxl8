@@ -1,11 +1,12 @@
 use core::assert;
 use core::u16;
 
-use crate::alloc::Vec;
-use crate::println;
+use crate::alloc::{vec, Vec};
+use crate::math::UVec2;
 
+#[derive(Clone, Debug)]
 pub struct SpriteSheet {
-    coordinates: Vec<[u16; 2]>,
+    coordinates: Vec<UVec2>,
     max_width: u16,
     max_height: u16,
     skyline_count: u16,
@@ -13,22 +14,22 @@ pub struct SpriteSheet {
 
 impl SpriteSheet {
     pub fn new(max_width: u16, max_height: u16) -> Self {
-        let mut coordinates = Vec::with_capacity(2 * max_width as usize);
-
-        coordinates.push([0, 0]);
-
         Self {
-            coordinates,
+            coordinates: vec![UVec2::zero(); max_width as usize],
             max_width,
             max_height,
             skyline_count: 1,
         }
     }
 
-    pub fn add(&mut self, size: [u16; 2], pos: &mut [u16; 2]) -> bool {
-        let [width, height] = size;
+    pub fn add(&mut self, size: UVec2, pos: &mut UVec2) -> bool {
+        let [width, height] = [size.x, size.y];
 
-        if width % 4 != 0 || height % 4 != 0 {
+        if width % 2 != 0
+            || height % 2 != 0
+            || width > self.max_width
+            || height > self.max_height
+        {
             return false;
         }
 
@@ -38,7 +39,7 @@ impl SpriteSheet {
         let mut best_y = u16::MAX;
 
         for i in 0..self.coordinates.len() {
-            let [x, mut y] = self.coordinates[i];
+            let [x, mut y] = [self.coordinates[i].x, self.coordinates[i].y];
 
             if width > self.max_width - x {
                 break;
@@ -51,12 +52,12 @@ impl SpriteSheet {
             let x_max = x + width;
 
             for j in 0..self.skyline_count {
-                if x_max <= self.coordinates[j as usize][0] {
+                if x_max <= self.coordinates[j as usize].x {
                     break;
                 }
 
-                if y < self.coordinates[j as usize][1] {
-                    y = self.coordinates[j as usize][1];
+                if y < self.coordinates[j as usize].y {
+                    y = self.coordinates[j as usize].y;
                 }
 
                 if y >= best_y || height > self.max_height {
@@ -78,12 +79,13 @@ impl SpriteSheet {
         assert!(next_best > 0);
 
         let removed = next_best - best;
-        let new_tl = [best_x, best_y + height];
-        let new_br = [best_x + width, self.coordinates[next_best as usize - 1][1]];
+        let new_tl = UVec2::new(best_x, best_y + height);
+        let new_br =
+            UVec2::new(best_x + width, self.coordinates[next_best as usize - 1].y);
         let br_point = if next_best < self.skyline_count {
-            new_br[0] < self.coordinates[next_best as usize][0]
+            new_br.x < self.coordinates[next_best as usize].x
         } else {
-            new_br[0] < self.max_width
+            new_br.x < self.max_width
         };
         let inserted = 1 + br_point as u16;
 
@@ -115,8 +117,8 @@ impl SpriteSheet {
             self.coordinates[best as usize + 1] = new_br;
         }
 
-        pos[0] = best_x;
-        pos[1] = best_y;
+        pos.x = best_x;
+        pos.y = best_y;
 
         true
     }
