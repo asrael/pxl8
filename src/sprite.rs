@@ -1,12 +1,12 @@
+use crate::alloc::{vec, Vec};
+
 use core::assert;
 use core::u16;
-
-use crate::alloc::{vec, Vec};
-use crate::math::UVec2;
+use glam::U16Vec2;
 
 #[derive(Clone, Debug)]
 pub struct SpriteSheet {
-    coordinates: Vec<UVec2>,
+    coordinates: Vec<U16Vec2>,
     max_width: u16,
     max_height: u16,
     skyline_count: u16,
@@ -15,17 +15,21 @@ pub struct SpriteSheet {
 impl SpriteSheet {
     pub fn new(max_width: u16, max_height: u16) -> Self {
         Self {
-            coordinates: vec![UVec2::zero(); 2 * max_width as usize],
+            coordinates: vec![U16Vec2::ZERO; 2 * max_width as usize],
             max_width,
             max_height,
             skyline_count: 1,
         }
     }
 
-    pub fn add(&mut self, size: UVec2, pos: &mut UVec2) -> bool {
+    pub fn add(&mut self, size: U16Vec2, pos: &mut U16Vec2) -> bool {
         let [width, height] = [size.x, size.y];
 
-        if width == 0 || height == 0 {
+        if width == 0
+            || height == 0
+            || width > self.max_width
+            || height > self.max_height
+        {
             return false;
         }
 
@@ -78,9 +82,9 @@ impl SpriteSheet {
         assert!(next_best > 0);
 
         let removed = next_best - best;
-        let new_tl = UVec2::new(best_x, best_y + height);
+        let new_tl = U16Vec2::new(best_x, best_y + height);
         let new_br =
-            UVec2::new(best_x + width, self.coordinates[next_best as usize - 1].y);
+            U16Vec2::new(best_x + width, self.coordinates[next_best as usize - 1].y);
         let br_point = if next_best < self.skyline_count {
             new_br.x < self.coordinates[next_best as usize].x
         } else {
@@ -127,14 +131,15 @@ impl SpriteSheet {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::UVec2;
+    use glam::U16Vec2;
+
     use crate::SpriteSheet;
 
     #[test]
     fn test_spritesheet_add() {
         let mut sheet = SpriteSheet::new(4, 4);
-        let mut pos = UVec2::default();
-        let mut size = UVec2::default();
+        let mut pos = U16Vec2::ZERO;
+        let mut size = U16Vec2::ZERO;
         let mut success;
 
         size.x = 1;

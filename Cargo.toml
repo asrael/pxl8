@@ -7,6 +7,7 @@ license = "zlib"
 
 [dependencies]
 libc = { version = "0.2", default-features = false, features = ["extra_traits"] }
+glam = { version = "0.29", default-features = false, features = ["libm"] }
 sdl3-sys = { version = "*", default-features = false, features = ["build-from-source"] }
 
 [target.wasm32-unknown-emscripten.dependencies]

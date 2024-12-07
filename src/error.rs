@@ -1,10 +1,9 @@
+use crate::alloc::{Cow, String};
+
 use core::convert::From;
 use core::ffi::CStr;
 use core::fmt;
-
 use sdl3_sys::error::SDL_GetError;
-
-use crate::alloc::{Cow, String};
 
 pub type Result<T> = core::result::Result<T, Error>;
 
@@ -20,7 +19,7 @@ impl Error {
         }
     }
 
-    pub fn from_sdl() -> Self {
+    pub(crate) fn from_sdl() -> Self {
         let msg_cstr = unsafe { CStr::from_ptr(SDL_GetError()) };
 
         Self {

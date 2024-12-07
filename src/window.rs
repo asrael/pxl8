@@ -1,10 +1,9 @@
-use core::ffi::c_int;
-use core::ptr::{self, NonNull};
-
-use sdl3_sys::video::{SDL_CreateWindow, SDL_Window, SDL_WINDOW_RESIZABLE};
-
 use crate::ffi::CString;
 use crate::{Error, Result};
+
+use core::ffi::c_int;
+use core::ptr::{self, NonNull};
+use sdl3_sys::video::{SDL_CreateWindow, SDL_Window, SDL_WINDOW_RESIZABLE};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Window {
@@ -33,7 +32,7 @@ impl Window {
         }
     }
 
-    pub fn as_ptr(&self) -> *mut SDL_Window {
+    pub fn as_raw(&self) -> *mut SDL_Window {
         self.raw.as_ptr()
     }
 }

@@ -10,7 +10,7 @@ use crate::{Error, Gpu, Result};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Texture {
-    raw: NonNull<SDL_GPUTexture>,
+    pub(crate) raw: NonNull<SDL_GPUTexture>,
 
     pub width: u32,
     pub height: u32,
@@ -31,7 +31,7 @@ impl Texture {
                 props: 0,
             };
 
-            SDL_CreateGPUTexture(gpu.device_ptr(), &info)
+            SDL_CreateGPUTexture(gpu.device.as_ptr(), &info)
         };
 
         if raw != ptr::null_mut() {
@@ -43,9 +43,5 @@ impl Texture {
         } else {
             Err(Error::from_sdl())
         }
-    }
-
-    pub fn as_ptr(&self) -> *mut SDL_GPUTexture {
-        self.raw.as_ptr()
     }
 }

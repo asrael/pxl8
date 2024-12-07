@@ -1,17 +1,17 @@
 extern crate alloc;
 
-#[allow(unused_imports)]
-use core::ffi::{c_int, c_void};
-
-use alloc::alloc::{GlobalAlloc, Layout};
-use sdl3_sys::stdinc::{SDL_free, SDL_malloc};
-
 pub use alloc::borrow::*;
 pub use alloc::boxed::Box;
 pub use alloc::ffi;
 pub use alloc::format;
 pub use alloc::string::String;
 pub use alloc::{vec, vec::Vec};
+
+#[allow(unused_imports)]
+use core::ffi::{c_int, c_void};
+
+use alloc::alloc::{GlobalAlloc, Layout};
+use sdl3_sys::stdinc::{SDL_free, SDL_malloc};
 
 #[global_allocator]
 static SDL_ALLOC: SDLAlloc = SDLAlloc;

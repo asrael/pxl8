@@ -1,17 +1,16 @@
 mod shader;
 mod texture;
 
-use core::ptr::{self, NonNull};
-
-use sdl3_sys::gpu::*;
-
 use crate::{Error, Result, Window};
+
+use core::ptr::{self, NonNull};
+use sdl3_sys::gpu::*;
 
 pub use texture::Texture;
 
 #[derive(Debug)]
 pub struct Gpu {
-    device: NonNull<SDL_GPUDevice>,
+    pub(crate) device: NonNull<SDL_GPUDevice>,
 }
 
 impl Gpu {
@@ -21,7 +20,7 @@ impl Gpu {
         };
 
         if device != ptr::null_mut()
-            && unsafe { SDL_ClaimWindowForGPUDevice(device, window.as_ptr()) }
+            && unsafe { SDL_ClaimWindowForGPUDevice(device, window.as_raw()) }
         {
             Ok(Self {
                 device: unsafe { NonNull::new_unchecked(device) },
@@ -29,9 +28,5 @@ impl Gpu {
         } else {
             Err(Error::from_sdl())
         }
-    }
-
-    pub fn device_ptr(&self) -> *mut SDL_GPUDevice {
-        self.device.as_ptr()
     }
 }

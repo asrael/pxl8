@@ -7,90 +7,155 @@ mod anim;
 mod audio;
 mod error;
 mod event;
+mod gfx;
 mod gpu;
 mod macros;
-pub mod math;
 mod sprite;
-pub mod ui;
+mod ui;
 mod window;
-
-use sdl3_sys::events::{SDL_Event, SDL_EventType};
 
 pub use alloc::*;
 pub use error::{Error, Result};
 pub use event::*;
+pub use gfx::Gfx;
 pub use gpu::{Gpu, Texture};
-pub use sdl3_sys;
 pub use sprite::*;
 pub use window::Window;
 
-#[allow(dead_code)]
 #[derive(Debug)]
-pub struct Pxl8<G: Game> {
-    game: G,
-    window: Window,
-
-    pub gpu: Gpu,
-}
-
-impl<G: Game> Pxl8<G> {
-    pub fn new(game: G) -> Result<Self> {
-        let (width, height) = game.size();
-        let window = Window::new(game.title(), width, height)?;
-        let gpu = Gpu::new(&window)?;
-
-        Ok(Self { game, gpu, window })
-    }
-
-    pub fn init(&self) {
-        self.game.init(&self);
-    }
-
-    pub fn frame(&self) {
-        self.game.frame(&self);
-    }
-
-    pub fn event(&self, sdl_event_type: SDL_EventType, sdl_event: SDL_Event) {
-        let mut event = None;
-
-        match sdl_event_type {
-            SDL_EventType::KEY_DOWN => unsafe {
-                event = Some(Event::KeyDown(KeyEvent {
-                    key: Key::from_scancode(sdl_event.key.scancode),
-                    repeat: sdl_event.key.repeat,
-                }));
-            },
-
-            SDL_EventType::KEY_UP => unsafe {
-                event = Some(Event::KeyUp(KeyEvent {
-                    key: Key::from_scancode(sdl_event.key.scancode),
-                    repeat: false,
-                }));
-            },
-
-            SDL_EventType::MOUSE_BUTTON_DOWN => {}
-            SDL_EventType::MOUSE_BUTTON_UP => {}
-
-            _ => {}
-        }
-
-        if let Some(event) = event {
-            self.game.event(&self, event);
-        }
-    }
-
-    pub fn quit(&self) {
-        self.game.quit(&self);
-    }
+pub struct Context {
+    pub events: Vec<Event>,
+    pub gfx: Gfx,
 }
 
 pub trait Game: Sized {
-    fn init(&self, pxl8: &Pxl8<Self>);
-    fn event(&self, pxl8: &Pxl8<Self>, event: Event);
-    fn frame(&self, pxl8: &Pxl8<Self>);
-    fn quit(&self, pxl8: &Pxl8<Self>);
+    fn init(&mut self, ctx: &mut Context);
+    fn update(&mut self, ctx: &mut Context);
+    fn frame(&mut self, ctx: &mut Context);
+    fn quit(&mut self, ctx: &mut Context);
     fn size(&self) -> (u32, u32);
     fn title(&self) -> &str;
+}
+
+#[doc(hidden)]
+pub mod __internal {
+    use crate::{
+        Context, Event, Game, Gfx, Gpu, KeyEvent, MouseButtonEvent,
+        MouseMotionEvent, MouseWheelEvent, Result, Vec, Window,
+    };
+
+    use core::mem;
+    use sdl3_sys::events::{SDL_Event, SDL_EventType};
+    use sdl3_sys::init::SDL_AppResult;
+
+    pub use sdl3_sys;
+
+    #[derive(Debug)]
+    pub struct Pxl8<G: Game> {
+        ctx: Context,
+        game: G,
+        window: Window,
+    }
+
+    impl<G: Game> Pxl8<G> {
+        pub fn new(game: G) -> Result<Self> {
+            let events = Vec::with_capacity(8);
+            let window = Window::new(game.title(), game.size().0, game.size().1)?;
+            let gpu = Gpu::new(&window)?;
+            let gfx = Gfx::new(gpu);
+            let ctx = Context { events, gfx };
+
+            Ok(Self { ctx, game, window })
+        }
+
+        pub fn init(&mut self) -> SDL_AppResult {
+            self.game.init(&mut self.ctx);
+
+            SDL_AppResult::CONTINUE
+        }
+
+        pub fn frame(&mut self) -> SDL_AppResult {
+            self.game.update(&mut self.ctx);
+            self.game.frame(&mut self.ctx);
+
+            self.ctx.events.clear();
+
+            SDL_AppResult::CONTINUE
+        }
+
+        pub fn event(&mut self, sdl_event: &SDL_Event) -> SDL_AppResult {
+            let r#type = unsafe { mem::transmute(sdl_event.r#type) };
+
+            match r#type {
+                SDL_EventType::KEY_DOWN => {
+                    let kb_event = unsafe { sdl_event.key };
+
+                    self.ctx
+                        .events
+                        .push(Event::KeyUp(KeyEvent::from_sdl(kb_event)));
+
+                    SDL_AppResult::CONTINUE
+                }
+
+                SDL_EventType::KEY_UP => {
+                    let kb_event = unsafe { sdl_event.key };
+
+                    self.ctx
+                        .events
+                        .push(Event::KeyUp(KeyEvent::from_sdl(kb_event)));
+
+                    SDL_AppResult::CONTINUE
+                }
+
+                SDL_EventType::MOUSE_BUTTON_DOWN => {
+                    let mb_event = unsafe { sdl_event.button };
+
+                    self.ctx.events.push(Event::MouseDown(
+                        MouseButtonEvent::from_sdl(mb_event),
+                    ));
+
+                    SDL_AppResult::CONTINUE
+                }
+
+                SDL_EventType::MOUSE_BUTTON_UP => {
+                    let mb_event = unsafe { sdl_event.button };
+
+                    self.ctx
+                        .events
+                        .push(Event::MouseUp(MouseButtonEvent::from_sdl(mb_event)));
+
+                    SDL_AppResult::CONTINUE
+                }
+
+                SDL_EventType::MOUSE_MOTION => {
+                    let mouse_motion = unsafe { sdl_event.motion };
+
+                    self.ctx.events.push(Event::MouseMotion(
+                        MouseMotionEvent::from_sdl(mouse_motion),
+                    ));
+
+                    SDL_AppResult::CONTINUE
+                }
+
+                SDL_EventType::MOUSE_WHEEL => {
+                    let mw_event = unsafe { sdl_event.wheel };
+
+                    self.ctx.events.push(Event::MouseWheel(
+                        MouseWheelEvent::from_sdl(mw_event),
+                    ));
+
+                    SDL_AppResult::CONTINUE
+                }
+
+                SDL_EventType::QUIT => SDL_AppResult::SUCCESS,
+                _ => SDL_AppResult::CONTINUE,
+            }
+        }
+
+        pub fn quit(&mut self) {
+            self.game.quit(&mut self.ctx);
+        }
+    }
 }
 
 #[cfg(not(test))]
