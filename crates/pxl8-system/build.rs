@@ -8,8 +8,6 @@ fn main() {
     cc::Build::new()
         .define("LOG_USE_COLOR", None)
         .file("./ext/log.c/src/log.c")
-        .define("STB_IMAGE_IMPLEMENTATION", None)
-        .define("STBI_ONLY_PNG", None)
         .flag_if_supported("-Wno-unused-function")
         .file("./src/stbi/stb_image.c")
         .compile("ffi");
