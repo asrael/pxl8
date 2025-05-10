@@ -1,0 +1,12 @@
+[package]
+name = "pxl8-gfx"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+pxl8-panic = { path = "../pxl8-panic" }

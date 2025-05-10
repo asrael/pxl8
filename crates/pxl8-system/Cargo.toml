@@ -1,0 +1,18 @@
+[package]
+name = "pxl8-system"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+glam = { version = "0.30.3", default-features = false, features = ["libm"] }
+pxl8-panic = { path = "../pxl8-panic" }
+sdl3-main = { git = "https://github.com/maia-s/sdl3-sys-rs", default-features = false }
+sdl3-sys = { git = "https://github.com/maia-s/sdl3-sys-rs", default-features = false }
+
+[build-dependencies]
+cc = "1.2"

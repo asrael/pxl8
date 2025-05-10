@@ -1,0 +1,12 @@
+[submodule "crates/pxl8-system/ext/log.c"]
+	path = crates/pxl8-system/ext/log.c
+	url = git@github.com:rxi/log.c
+[submodule "crates/pxl8-system/ext/microui"]
+	path = crates/pxl8-system/ext/microui
+	url = git@github.com:rxi/microui
+[submodule "crates/pxl8-system/ext/sokol_gp"]
+	path = crates/pxl8-system/ext/sokol_gp
+	url = https://github.com/edubart/sokol_gp
+[submodule "crates/pxl8-system/ext/sokol-tools-bin"]
+	path = crates/pxl8-system/ext/sokol-tools-bin
+	url = https://github.com/floooh/sokol-tools-bin
