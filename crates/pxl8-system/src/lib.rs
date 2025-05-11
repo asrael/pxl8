@@ -50,28 +50,36 @@ unsafe impl GlobalAlloc for SDLAllocator {
 }
 
 #[global_allocator]
-static SDL_ALLOC: SDLAllocator = SDLAllocator;
+static SYSTEM_ALLOC: SDLAllocator = SDLAllocator;
 
-pub struct Context {
+pub struct SystemState<S> {
     palette: Pixels,
+    user_state: Option<S>,
 }
 
-impl Default for Context {
+impl<S> Default for SystemState<S> {
     fn default() -> Self {
         Self {
-            palette: Pixels::from_encoded(palettes::SWEAFT_64),
+            palette: Pixels::new(palettes::SWEAFT_64),
+            user_state: None,
         }
     }
 }
 
-impl Context {
-    pub fn new() -> Self {
-        Self::default()
+impl<S> SystemState<S> {
+    pub fn new(user_state: S) -> Self {
+        Self::default().with_user_state(user_state)
+    }
+
+    pub fn with_user_state(mut self, user_state: S) -> Self {
+        self.user_state = Some(user_state);
+        self
     }
 }
 
-pub fn run() {
-    let user_data = Box::into_raw(Box::new(Context::new())) as *mut c_void;
+pub fn init<S>(user_state: S) {
+    let state = SystemState::<S>::new(user_state);
+    let state_ptr = Box::into_raw(Box::new(state)) as *mut c_void;
 
     unsafe {
         if !SDL_Init(SDL_INIT_AUDIO | SDL_INIT_GAMEPAD | SDL_INIT_VIDEO) {
@@ -79,7 +87,8 @@ pub fn run() {
         }
     }
 
-    info!("pxl8 running... {:p}", user_data);
+    info!("pxl8 running...");
+    info!("state ptr: {state_ptr:?}");
 }
 
 #[cfg(not(test))]

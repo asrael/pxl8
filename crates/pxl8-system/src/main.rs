@@ -3,7 +3,12 @@
 
 use pxl8_system as pxl8;
 
+#[derive(Clone, Copy, Debug)]
+struct State {
+    x: i32,
+}
+
 #[pxl8::main]
 fn main() {
-    pxl8::run();
+    pxl8::init(State { x: 0 });
 }

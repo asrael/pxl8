@@ -1,7 +1,5 @@
-use core::ptr::NonNull;
-use core::slice;
-
 use crate::stbi;
+use core::ptr::NonNull;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Pixels {
@@ -12,18 +10,7 @@ pub struct Pixels {
 }
 
 impl Pixels {
-    pub fn new(buffer: &mut [u8], width: u32, height: u32) -> Self {
-        let buffer = unsafe { NonNull::new_unchecked(buffer.as_mut_ptr()) };
-
-        Self {
-            buffer,
-            width,
-            height,
-            size: (width * height * 4) as usize,
-        }
-    }
-
-    pub fn from_encoded(buffer: &[u8]) -> Self {
+    pub fn new(buffer: &[u8]) -> Self {
         let (buffer, width, height) = stbi::load_from_memory(buffer);
 
         Self {
@@ -35,8 +22,9 @@ impl Pixels {
     }
 
     pub fn as_slice(&self) -> &[u8] {
-        // SAFETY: data is asserted to be non-null and size > 0
-        unsafe { slice::from_raw_parts(self.buffer.as_ptr(), self.size) }
+        let ptr = NonNull::slice_from_raw_parts(self.buffer, self.size);
+
+        unsafe { ptr.as_ref() }
     }
 }
 
