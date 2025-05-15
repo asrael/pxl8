@@ -10,8 +10,8 @@ pub struct Pixels {
 }
 
 impl Pixels {
-    pub fn new(buffer: &[u8]) -> Self {
-        let (buffer, width, height) = stbi::load_from_memory(buffer);
+    pub fn new(memory: &[u8]) -> Self {
+        let (buffer, width, height) = stbi::load_from_memory(memory);
 
         Self {
             buffer,

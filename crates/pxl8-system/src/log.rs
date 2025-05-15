@@ -12,7 +12,7 @@ mod ffi {
     }
 }
 
-use alloc::ffi::CString;
+use cstr_core::CString;
 
 #[repr(i32)]
 pub enum LogLevel {
@@ -26,17 +26,17 @@ pub enum LogLevel {
 
 #[inline]
 pub fn log_log(level: LogLevel, message: &str, file: &str, line: u32) {
-    let c_msg =
+    let msg_cstr =
         CString::new(message).expect("failed to create log msg CString");
-    let c_file =
+    let file_cstr =
         CString::new(file).expect("failed to create file name CString");
 
     unsafe {
         ffi::log_log(
             level as i32,
-            c_file.as_ptr(),
+            file_cstr.as_ptr(),
             line as i32,
-            c_msg.as_ptr(),
+            msg_cstr.as_ptr(),
         );
     }
 }

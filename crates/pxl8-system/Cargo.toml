@@ -9,6 +9,7 @@ license.workspace = true
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+cstr_core = "0.2.6"
 glam = { version = "0.30.3", default-features = false, features = ["libm"] }
 pxl8-panic = { path = "../pxl8-panic" }
 sdl3-main = { git = "https://github.com/maia-s/sdl3-sys-rs", default-features = false }

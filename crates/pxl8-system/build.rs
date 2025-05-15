@@ -13,6 +13,10 @@ fn main() {
         .compile("ffi");
 
     println!("cargo:rustc-link-lib=c");
+
+    // TODO: alloc::format macro brings this dependency along for the ride
     #[cfg(target_os = "linux")]
     println!("cargo:rustc-link-lib=gcc_s");
+    #[cfg(target_os = "macos")]
+    println!("cargo:rustc-link-lib=System");
 }
