@@ -8,5 +8,5 @@
 pixel art games. The framework provides a minimal yet capable API in C 
 inspired by 8 and 16 bit hardware.
 
-> **Disclaimer**: This project is under active development. So, ya know, the
-> whole *api instability* spiel... :3
+> [!WARNING]
+> This project is under active development. So, ya know, the whole *api instability* spiel... :3
