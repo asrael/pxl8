@@ -1,6 +1,6 @@
-<p align="center" href="https://pxl8.org">
-  <a href="https://pxl8.org"><img alt="pixel 8 logo" src="./pxl8.png" title="pxl8" /></a>
+<p align="center">
+  <img src="./res/sprites/pxl8.png" alt="pixel 8 logo" width="512" />
 </p>
 
 > [!WARNING]
-> This project is under active development. So, ya know, the whole *api instability* spiel... :3
+> Heavy development. So... *here be dragons :3*
