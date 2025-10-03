@@ -1,1 +1,1 @@
-https://src.pxl8.org/asrael/pxl8
+https://src.pxl8.org/
